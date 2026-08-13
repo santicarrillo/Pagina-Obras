@@ -1,0 +1,11 @@
+cartel-404 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 60px 20px;
+  text-align: center;
+}
+.codigo { font-size: 48px; font-weight: 500; margin: 0; }
+.mensaje { color: #666; margin: 0 0 12px; }

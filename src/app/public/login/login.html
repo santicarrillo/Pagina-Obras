@@ -1,0 +1,41 @@
+@if (procesandoLink()) {
+  <div class="d-flex flex-column align-items-center justify-content-center py-5">
+    <div class="spinner-border mb-3" role="status"></div>
+    <p>Confirmando tu acceso...</p>
+  </div>
+} @else if (enviado()) {
+  <div class="container py-5" style="max-width: 420px;">
+    <h2 class="h4 mb-2">Revisá tu correo</h2>
+    <p class="text-secondary">
+      Te mandamos un link a <strong>{{ email() }}</strong>.
+      Abrilo desde este mismo dispositivo para ingresar.
+    </p>
+  </div>
+} @else {
+  <div class="container py-5" style="max-width: 420px;">
+    <h2 class="h4 mb-3">Ingresá con tu email</h2>
+    <p class="text-secondary mb-4">Sin contraseña, te mandamos un link.</p>
+
+    <div class="mb-3">
+      <input
+        type="email"
+        class="form-control"
+        placeholder="tu@email.com"
+        [value]="email()"
+        (input)="actualizarEmail($any($event.target).value)"
+      />
+    </div>
+
+    @if (error()) {
+      <p class="text-danger small">{{ error() }}</p>
+    }
+
+    <button
+      class="btn btn-dark w-100"
+      [disabled]="cargando() || !email()"
+      (click)="enviarLink()"
+    >
+      {{ cargando() ? 'Enviando...' : 'Enviarme el link' }}
+    </button>
+  </div>
+}

@@ -1,0 +1,22 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+nav {
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    gap: 29px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #3E501F;
+}
+
+.nav-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 9px 18px;
+}
