@@ -1,4 +1,4 @@
-export const EMAIL_ARTISTA = 'cuatrox4n@gmail.com';
+export const EMAIL_ARTISTA = 'a5c804a2584d8183121c78e156bef5a21d492c589f253248a7add3b085f2336b';
 export const CLOUDINARY_CONFIG = {
   cloudName: 'xmmd0cpx',
   uploadPreset: 'obras_arte'
