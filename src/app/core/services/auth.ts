@@ -5,7 +5,6 @@ import {
 } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 import { firebaseApp } from './firebase';
-import { EMAIL_ARTISTA } from './config';
 export type Rol = 'comprador' | 'artista';
 
 @Injectable({ providedIn: 'root' })
@@ -65,13 +64,14 @@ export class Auth {
   const ref = doc(this.db, 'users', credencial.user.uid);
   const snap = await getDoc(ref);
   if (!snap.exists()) {
-    const rol: Rol = credencial.user.email === EMAIL_ARTISTA ? 'artista' : 'comprador';
     await setDoc(ref, {
       email: credencial.user.email,
-      role: rol,
+      role: 'comprador',
       creadoEn: new Date().toISOString()
     });
-    this.rol.set(rol);
+    this.rol.set('comprador');
+  } else {
+    this.rol.set(snap.data()['role'] as Rol);
   }
 }
 

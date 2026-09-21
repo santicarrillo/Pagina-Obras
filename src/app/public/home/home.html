@@ -1,1 +1,34 @@
-<p>home works!</p>
+<nav class="navbar-galeria">
+  <span class="nombre-artista">NICKART</span>
+  <div class="nav-links">
+    <a routerLink="/obras">OBRAS</a>
+    <span>SOBRE MÍ</span>
+    <span>CONTACTO</span>
+  </div>
+</nav>
+
+<div class="tira-wrapper">
+  <button class="flecha flecha-izq" (click)="anterior()" aria-label="Obra anterior">
+    <i class="ti ti-chevron-left"></i>
+  </button>
+
+  <div class="tira" #tira>
+    @for (obra of obras(); track obra.id) {
+      <div class="obra-grande" [routerLink]="['/obra', obra.id]">
+        <div class="foco"></div>
+        <div class="obra-imagen" [style.background-image]="'url(' + obra.imagenUrl + ')'"></div>
+        <p class="obra-titulo">{{ obra.titulo }}</p>
+        <p class="obra-tecnica">{{ obra.tecnica.toUpperCase() }}</p>
+      </div>
+    }
+
+    <div class="cierre-galeria">
+      <p class="cierre-texto">¿Querés ver todo?</p>
+      <button class="boton-galeria" routerLink="/obras">VER GALERÍA COMPLETA</button>
+    </div>
+  </div>
+
+  <button class="flecha flecha-der" (click)="siguiente()" aria-label="Obra siguiente">
+    <i class="ti ti-chevron-right"></i>
+  </button>
+</div>
