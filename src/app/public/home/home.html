@@ -1,14 +1,5 @@
-<nav class="navbar-galeria">
-  <span class="nombre-artista">NICKART</span>
-  <div class="nav-links">
-    <a routerLink="/obras">OBRAS</a>
-    <span>SOBRE MÍ</span>
-    <span>CONTACTO</span>
-  </div>
-</nav>
-
 <div class="tira-wrapper">
-  <button class="flecha flecha-izq" (click)="anterior()" aria-label="Obra anterior">
+  <button class="flecha flecha-izq" [class.oculta]="!mostrarIzq()" (click)="anterior()" aria-label="Obra anterior">
     <i class="ti ti-chevron-left"></i>
   </button>
 
@@ -28,7 +19,7 @@
     </div>
   </div>
 
-  <button class="flecha flecha-der" (click)="siguiente()" aria-label="Obra siguiente">
+  <button class="flecha flecha-der" [class.oculta]="!mostrarDer()" (click)="siguiente()" aria-label="Obra siguiente">
     <i class="ti ti-chevron-right"></i>
   </button>
 </div>

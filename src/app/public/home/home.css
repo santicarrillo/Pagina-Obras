@@ -34,13 +34,14 @@
   padding: 0 16px 40px;
   width: 100%;
   overflow: hidden;
-box-sizing: border-box}
+  box-sizing: border-box;
+}
 
 .tira {
   flex: 1;
   min-width: 0;
   display: flex;
-  overflow-x: auto;
+  overflow-x: hidden;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   gap: 0;
@@ -125,16 +126,31 @@ box-sizing: border-box}
 
 .flecha {
   flex-shrink: 0;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: none;
-  color: #c9bfa8;
+  color: rgba(242, 237, 228, 0.7);
   font-size: 24px;
-  opacity: 0.35;
+  opacity: 0.7;
   cursor: pointer;
-  padding: 8px;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  padding: 0;
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease, text-shadow 0.22s ease;
 }
-.flecha:hover {
+
+.flecha.oculta {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.flecha:hover,
+.flecha:focus-visible {
   opacity: 1;
-  transform: scale(1.15);
+  transform: translateY(-1px) scale(1.12);
+  text-shadow: 0 0 12px rgba(242, 237, 228, 0.45);
 }

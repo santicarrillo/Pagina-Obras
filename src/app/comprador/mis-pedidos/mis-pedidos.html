@@ -1,1 +1,48 @@
-<p>mis-pedidos works!</p>
+<div class="pedidos-page">
+  <header class="topbar">
+    <a routerLink="/obras" class="back-link">← Volver</a>
+    <span class="brand">NICKART</span>
+  </header>
+
+  <main class="pedidos-layout">
+    <section class="lista-pedidos">
+      <p class="eyebrow">Carrito</p>
+      <h1>Mis pedidos</h1>
+
+      @for (pedido of pedidos(); track pedido.id) {
+        <article class="pedido-item">
+          <div class="pedido-imagen" [style.background-image]="'url(' + pedido.imagenUrl + ')'" aria-label="{{ pedido.titulo }}"></div>
+
+          <div class="pedido-info">
+            <h2>{{ pedido.titulo }}</h2>
+            <p>{{ pedido.tecnica }}</p>
+          </div>
+
+          <strong class="pedido-precio">${{ pedido.precio.toLocaleString('es-AR') }}</strong>
+        </article>
+      }
+    </section>
+
+    <aside class="resumen">
+      <p class="eyebrow">Resumen</p>
+      <div class="resumen-box">
+        <div class="linea">
+          <span>Subtotal</span>
+          <strong>${{ total().toLocaleString('es-AR') }}</strong>
+        </div>
+
+        <div class="linea">
+          <span>Envío</span>
+          <strong>Gratis</strong>
+        </div>
+
+        <div class="linea total">
+          <span>Total</span>
+          <strong>${{ total().toLocaleString('es-AR') }}</strong>
+        </div>
+
+        <button class="checkout-button" type="button">Finalizar compra</button>
+      </div>
+    </aside>
+  </main>
+</div>

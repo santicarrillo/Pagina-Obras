@@ -1,2 +1,56 @@
+@if (auth.cargando()) {
+  <div class="app-loading-shell" aria-live="polite" aria-busy="true">
+    <div class="app-loading-card">
+      <div class="canvas-frame" aria-label="Cargando la página" role="status">
+        <div class="canvas-border canvas-border-top"></div>
+        <div class="canvas-border canvas-border-right"></div>
+        <div class="canvas-border canvas-border-bottom"></div>
+        <div class="canvas-border canvas-border-left"></div>
+      </div>
 
-<router-outlet></router-outlet>
+      <div class="app-loading-copy">
+        <span class="app-loading-kicker">Editorial</span>
+        <p class="app-loading-text">Abriendo la colección</p>
+      </div>
+    </div>
+  </div>
+} @else {
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="brand-button" type="button" (click)="irAlHome()">
+        NICKART
+      </button>
+
+      @if (mostrarNavegacion) {
+        <nav class="topbar-nav" aria-label="Navegación principal">
+          <a routerLink="/obras">Obras</a>
+          <a routerLink="/">Sobre mí</a>
+          <a routerLink="/">Contacto</a>
+        </nav>
+      }
+    </div>
+
+    @if (auth.estaLogueado()) {
+      <div class="user-menu-wrap">
+        <button class="user-button" type="button" (click)="alternarMenu()" aria-label="Abrir menú de usuario">
+          <span class="user-avatar">U</span>
+          <span class="user-name">{{ nombreUsuario }}</span>
+        </button>
+
+        @if (menuAbierto()) {
+          <div class="user-menu">
+            <button type="button" class="menu-option" (click)="cerrarSesion()">
+              Cerrar sesión
+            </button>
+          </div>
+        }
+      </div>
+    } @else {
+      <button class="login-button" type="button" (click)="irALogin()">
+        Iniciar sesión
+      </button>
+    }
+  </header>
+
+  <router-outlet></router-outlet>
+}

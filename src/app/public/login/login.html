@@ -1,41 +1,69 @@
 @if (procesandoLink()) {
-  <div class="d-flex flex-column align-items-center justify-content-center py-5">
-    <div class="spinner-border mb-3" role="status"></div>
-    <p>Confirmando tu acceso...</p>
-  </div>
-} @else if (enviado()) {
-  <div class="container py-5" style="max-width: 420px;">
-    <h2 class="h4 mb-2">Revisá tu correo</h2>
-    <p class="text-secondary">
-      Te mandamos un link a <strong>{{ email() }}</strong>.
-      Abrilo desde este mismo dispositivo para ingresar.
-    </p>
+  <div class="auth-shell">
+    <div class="auth-card processing">
+      <div class="spinner" role="status" aria-label="Cargando"></div>
+      <p>Confirmando tu acceso...</p>
+    </div>
   </div>
 } @else {
-  <div class="container py-5" style="max-width: 420px;">
-    <h2 class="h4 mb-3">Ingresá con tu email</h2>
-    <p class="text-secondary mb-4">Sin contraseña, te mandamos un link.</p>
+  <div class="auth-shell">
+    <div class="auth-card">
+      @if (enviado()) {
+        <div class="status-box">
+          <h2>{{ modo() === 'registro' ? '¡Cuenta creada!' : 'Revisá tu correo' }}</h2>
+          <p>
+            Te mandamos un link a <strong>{{ email() }}</strong>.
+            {{ modo() === 'registro'
+              ? 'Abrilo para activar tu cuenta y empezar a comprar.'
+              : 'Abrilo desde este mismo dispositivo para ingresar.' }}
+          </p>
+        </div>
+      } @else {
+        <div class="form-wrap">
+          <h1>Bienvenido</h1>
 
-    <div class="mb-3">
-      <input
-        type="email"
-        class="form-control"
-        placeholder="tu@email.com"
-        [value]="email()"
-        (input)="actualizarEmail($any($event.target).value)"
-      />
+          <div class="field-group">
+            <label for="email">Ingresa tu email</label>
+            <input
+              id="email"
+              type="email"
+              placeholder="tu@email.com"
+              [value]="email()"
+              (input)="actualizarEmail($any($event.target).value)"
+            />
+          </div>
+
+          @if (error()) {
+            <p class="error-text">{{ error() }}</p>
+          }
+
+          <button
+            class="submit-button"
+            [disabled]="cargando() || !email()"
+            (click)="enviarLink()"
+          >
+            {{ cargando() ? 'Enviando...' : 'INGRESAR' }}
+          </button>
+
+          <div class="auth-divider" aria-hidden="true">
+            <span class="line"></span>
+            <span class="divider-mark">O</span>
+            <span class="line"></span>
+          </div>
+
+          <button type="button" class="gmail-button" aria-label="Continuar con Gmail">
+            <span class="gmail-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.72 1.22 9.23 3.63L42 6.75C37.58 2.76 31.41 0 24 0 14.88 0 6.93 4.46 2.96 10.9l9.13 7.06C14.02 12.95 18.58 9.5 24 9.5z"/>
+                <path fill="#4285F4" d="M46.5 24.5c0-1.6-.14-3.13-.4-4.62H24v9.13h12.72c-.55 2.96-2.22 5.47-4.72 7.17l7.68 5.96C43.87 37.64 46.5 31.53 46.5 24.5z"/>
+                <path fill="#FBBC05" d="M32 36.68c-2.74 1.84-6.24 2.92-8 2.92-5.37 0-9.92-3.45-11.54-8.08l-9.14 7.08C6.26 43.1 14.46 48 24 48c6.75 0 12.44-2.23 16.6-6.06l-8.6-5.26z"/>
+                <path fill="#34A853" d="M12.46 31.52A11.9 11.9 0 0 1 11.4 24c0-1.24.21-2.44.57-3.58L2.96 13.36A23.87 23.87 0 0 0 0 24c0 3.87.93 7.53 2.6 10.77l9.86-8.25z"/>
+              </svg>
+            </span>
+            CONTINUAR CON GMAIL
+          </button>
+        </div>
+      }
     </div>
-
-    @if (error()) {
-      <p class="text-danger small">{{ error() }}</p>
-    }
-
-    <button
-      class="btn btn-dark w-100"
-      [disabled]="cargando() || !email()"
-      (click)="enviarLink()"
-    >
-      {{ cargando() ? 'Enviando...' : 'Enviarme el link' }}
-    </button>
   </div>
 }
