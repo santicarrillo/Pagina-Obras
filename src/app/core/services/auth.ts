@@ -1,13 +1,26 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, computed, signal } from '@angular/core';
 import {
   getAuth, sendSignInLinkToEmail, isSignInWithEmailLink,
   signInWithEmailLink, signInWithPopup, GoogleAuthProvider,
   onAuthStateChanged, signOut, User
 } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { firebaseApp } from './firebase';
 
-export type Rol = 'comprador' | 'artista';
+export type Rol = 'comprador';
+
+// Datos públicos del artista (colección `artists`, un documento por uid)
+export interface PerfilArtista {
+  nombreArtistico: string;
+  ciudad: string;
+  bio: string;
+  instagram: string;
+}
+
+interface Perfil {
+  rol: Rol;
+  artista: PerfilArtista | null;
+}
 
 const CLAVE_EMAIL = 'emailParaLogin';
 const CLAVE_RETORNO = 'returnUrl';
@@ -19,6 +32,9 @@ export class Auth {
 
   usuario = signal<User | null>(null);
   rol = signal<Rol | null>(null);
+  // Todos son compradores; ser artista es algo que se suma encima
+  perfilArtista = signal<PerfilArtista | null>(null);
+  esArtista = computed(() => this.perfilArtista() !== null);
   cargando = signal(true);
 
   private resolverListo!: () => void;
@@ -26,12 +42,12 @@ export class Auth {
 
   // Evita buscar/crear el perfil dos veces a la vez para el mismo usuario
   private perfilUid: string | null = null;
-  private perfilPromise: Promise<Rol | null> | null = null;
+  private perfilPromise: Promise<Perfil | null> | null = null;
 
   constructor() {
     onAuthStateChanged(this.auth, async (user) => {
       this.usuario.set(user);
-      this.rol.set(user ? await this.cargarPerfil(user) : null);
+      this.aplicarPerfil(user ? await this.cargarPerfil(user) : null);
       this.cargando.set(false);
       this.resolverListo();
     });
@@ -47,7 +63,12 @@ export class Auth {
 
   // ---------- Perfil y rol ----------
 
-  private cargarPerfil(user: User): Promise<Rol | null> {
+  private aplicarPerfil(perfil: Perfil | null) {
+    this.rol.set(perfil?.rol ?? null);
+    this.perfilArtista.set(perfil?.artista ?? null);
+  }
+
+  private cargarPerfil(user: User): Promise<Perfil | null> {
     if (this.perfilUid !== user.uid || !this.perfilPromise) {
       this.perfilUid = user.uid;
       this.perfilPromise = this.asegurarPerfil(user).catch(() => {
@@ -59,27 +80,44 @@ export class Auth {
   }
 
   // Busca el documento del usuario y, si no existe, lo crea como comprador.
-  // Se hace en un solo lugar para que el rol nunca quede en null por una carrera.
-  private async asegurarPerfil(user: User): Promise<Rol> {
+  // Después se fija si además tiene perfil de artista.
+  private async asegurarPerfil(user: User): Promise<Perfil> {
     const ref = doc(this.db, 'users', user.uid);
     const snap = await getDoc(ref);
 
-    if (snap.exists()) {
-      return snap.data()['role'] as Rol;
+    if (!snap.exists()) {
+      await setDoc(ref, {
+        email: user.email,
+        nombre: user.displayName ?? null,
+        role: 'comprador',
+        creadoEn: new Date().toISOString()
+      });
     }
 
-    await setDoc(ref, {
-      email: user.email,
-      nombre: user.displayName ?? null,
-      role: 'comprador',
-      creadoEn: new Date().toISOString()
-    });
-    return 'comprador';
+    const artistaSnap = await getDoc(doc(this.db, 'artists', user.uid));
+    const artista = artistaSnap.exists() ? (artistaSnap.data() as PerfilArtista) : null;
+
+    return { rol: 'comprador', artista };
   }
 
   private async finalizarIngreso(user: User) {
     this.usuario.set(user);
-    this.rol.set(await this.cargarPerfil(user));
+    this.aplicarPerfil(await this.cargarPerfil(user));
+  }
+
+  // ---------- Alta de artista ----------
+
+  async activarPerfilArtista(datos: PerfilArtista) {
+    const user = this.usuario();
+    if (!user) throw new Error('Tenés que iniciar sesión');
+
+    await setDoc(doc(this.db, 'artists', user.uid), {
+      ...datos,
+      creadoEn: serverTimestamp()
+    });
+
+    this.perfilArtista.set(datos);
+    this.perfilPromise = Promise.resolve({ rol: 'comprador', artista: datos });
   }
 
   // ---------- Login con email (link) ----------

@@ -1,9 +1,50 @@
 <section class="vender">
-  <span class="kicker">Para artistas</span>
-  <h1>Vendé tus obras en NICKART</h1>
-  <p>
-    Muy pronto vas a poder activar tu perfil de artista desde acá y publicar
-    tus obras para que cualquiera las pueda comprar.
-  </p>
-  <a routerLink="/obras" class="volver">Mientras tanto, mirá la galería</a>
+  <header class="intro">
+    <h1>Vendé tus obras en NICKART</h1>
+    <p>
+      Armá tu perfil de artista y empezá a publicar. Tu cuenta sigue siendo la misma:
+      vas a poder vender y también comprar obras de otros artistas.
+    </p>
+  </header>
+
+  <form class="form-nickart" (ngSubmit)="activar()" novalidate>
+    <div class="campo" [class.con-error]="intentoEnviar() && !nombreValido">
+      <label for="nombre">Nombre artístico</label>
+      <input id="nombre" name="nombre" [(ngModel)]="nombreArtistico" maxlength="60" autocomplete="nickname" />
+      @if (intentoEnviar() && !nombreValido) {
+        <span class="error">Poné un nombre de entre 2 y 60 caracteres.</span>
+      } @else {
+        <span class="ayuda">Así va a aparecer tu firma en cada obra.</span>
+      }
+    </div>
+
+    <div class="campo">
+      <label for="ciudad">Ciudad <span class="opcional">opcional</span></label>
+      <input id="ciudad" name="ciudad" [(ngModel)]="ciudad" maxlength="60" />
+    </div>
+
+    <div class="campo" [class.con-error]="intentoEnviar() && !bioValida">
+      <label for="bio">Sobre vos</label>
+      <textarea id="bio" name="bio" [(ngModel)]="bio" [maxlength]="MAX_BIO"
+        placeholder="Qué técnicas usás, cómo trabajás, qué te inspira."></textarea>
+      @if (intentoEnviar() && !bioValida) {
+        <span class="error">Contá un poco más: mínimo 20 caracteres.</span>
+      } @else {
+        <span class="ayuda">{{ bio.length }} / {{ MAX_BIO }}</span>
+      }
+    </div>
+
+    <div class="campo">
+      <label for="instagram">Instagram <span class="opcional">opcional</span></label>
+      <input id="instagram" name="instagram" [(ngModel)]="instagram" maxlength="40" placeholder="@tuusuario" />
+    </div>
+
+    @if (error()) {
+      <p class="aviso-error" role="alert">{{ error() }}</p>
+    }
+
+    <button type="submit" class="btn-primario" [disabled]="guardando()">
+      {{ guardando() ? 'Activando...' : 'Activar perfil de artista' }}
+    </button>
+  </form>
 </section>

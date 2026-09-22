@@ -2,12 +2,116 @@ body {
   margin: 0;
   background: #100e0a;
 }
-    ::selection {
-  background: rgba(201, 170, 109, 0.35);
-  color: #f4ebdf;
+/* ---------- Formularios compartidos (alta de artista, nueva obra) ---------- */
+
+.form-nickart {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
 }
 
-/* Que el navbar no se pueda seleccionar como texto */
-.app-topbar {
-  user-select: none;
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.campo label {
+  color: #d8bd8a;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+.campo .opcional {
+  color: rgba(245, 238, 232, 0.4);
+  font-size: 0.8rem;
+  margin-left: 6px;
+}
+
+.campo input,
+.campo textarea {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(201, 170, 109, 0.3);
+  color: #f4ebdf;
+  font: inherit;
+  font-size: 1rem;
+  padding: 8px 0;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.campo textarea {
+  border: 1px solid rgba(201, 170, 109, 0.3);
+  border-radius: 4px;
+  padding: 12px;
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+  border-color: #c9aa6d;
+}
+
+.campo .ayuda {
+  color: rgba(245, 238, 232, 0.45);
+  font-size: 0.8rem;
+}
+
+.campo.con-error input,
+.campo.con-error textarea {
+  border-color: #d98b7a;
+}
+
+.campo .error {
+  color: #e3a08f;
+  font-size: 0.8rem;
+}
+
+.fila-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 22px;
+}
+
+.btn-primario {
+  align-self: flex-start;
+  background: #c9aa6d;
+  color: #1a150e;
+  border: 0;
+  border-radius: 2px;
+  padding: 14px 30px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-primario:hover:not(:disabled) {
+  background: #dcc08a;
+}
+
+.btn-primario:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.btn-primario:focus-visible,
+.campo input:focus-visible,
+.campo textarea:focus-visible {
+  outline: 2px solid #c9aa6d;
+  outline-offset: 3px;
+}
+
+.aviso-error {
+  color: #e3a08f;
+  border-left: 2px solid #d98b7a;
+  padding: 4px 0 4px 12px;
+  margin: 0;
 }

@@ -1,1 +1,49 @@
-<p>mis-obras works!</p>
+<section class="panel">
+  <header class="panel-head">
+    <div>
+      <h1>Mis obras</h1>
+      <p class="firma">{{ auth.perfilArtista()?.nombreArtistico }}</p>
+    </div>
+    @if (obras().length > 0) {
+      <a routerLink="/admin/obras/nueva" class="btn-primario">Agregar obra</a>
+    }
+  </header>
+
+  @if (error()) {
+    <p class="aviso-error" role="alert">{{ error() }}</p>
+  }
+
+  @if (cargando()) {
+    <p class="estado-carga">Cargando tus obras...</p>
+  } @else if (obras().length === 0 && !error()) {
+    <div class="vacio">
+      <h2>Todavía no publicaste ninguna obra</h2>
+      <p>Subí una foto, poné el precio y en un minuto aparece en la galería.</p>
+      <a routerLink="/admin/obras/nueva" class="btn-primario">Agregar tu primera obra</a>
+    </div>
+  } @else {
+    <ul class="grilla">
+      @for (obra of obras(); track obra.id) {
+        <li class="obra">
+          <a [routerLink]="['/obra', obra.id]" class="marco">
+            <img [src]="obra.imagenUrl" [alt]="obra.titulo" loading="lazy" />
+          </a>
+          <div class="datos">
+            <span class="estado" [attr.data-estado]="obra.estado">{{ nombresEstado[obra.estado] }}</span>
+            <h3>{{ obra.titulo }}</h3>
+            <p class="tecnica">{{ obra.tecnica }}@if (obra.medidas) {, {{ obra.medidas }}}</p>
+            <p class="precio">{{ precio(obra.precio) }}</p>
+            @if (obra.estado === 'rechazada' && obra.motivoRechazo) {
+              <p class="motivo">{{ obra.motivoRechazo }}</p>
+            }
+          </div>
+          @if (obra.estado !== 'vendida') {
+            <button type="button" class="eliminar" (click)="eliminar(obra)" [disabled]="borrando() === obra.id">
+              {{ borrando() === obra.id ? 'Eliminando...' : 'Eliminar' }}
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>

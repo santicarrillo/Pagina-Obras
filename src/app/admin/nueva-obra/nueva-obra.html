@@ -1,0 +1,103 @@
+<section class="nueva">
+  <a routerLink="/admin/obras" class="volver">← Mis obras</a>
+  <h1>Agregar obra</h1>
+
+  <form class="layout" (ngSubmit)="publicar()" novalidate>
+    <!-- Foto -->
+    <div class="columna-foto">
+      @if (vistaPrevia()) {
+        <figure class="marco con-foto">
+          <img [src]="vistaPrevia()" alt="Vista previa de la obra" />
+        </figure>
+        <div class="acciones-foto">
+          <label class="link-accion">
+            Cambiar foto
+            <input type="file" accept="image/jpeg,image/png,image/webp" (change)="elegirArchivo($event)" hidden [disabled]="ocupado" />
+          </label>
+          <button type="button" class="link-accion" (click)="quitarImagen()" [disabled]="ocupado">Quitar</button>
+        </div>
+      } @else {
+        <label class="marco zona-carga"
+          [class.arrastrando]="arrastrando()"
+          [class.con-error]="!!errorImagen()"
+          (dragover)="arrastrarEncima($event)"
+          (dragleave)="arrastrando.set(false)"
+          (drop)="soltar($event)">
+          <input type="file" accept="image/jpeg,image/png,image/webp" (change)="elegirArchivo($event)" class="input-oculto" />
+          <span class="zona-titulo">Subí la foto de tu obra</span>
+          <span class="zona-ayuda">Arrastrala acá o hacé clic para elegirla.<br />JPG, PNG o WebP, hasta 10 MB.</span>
+        </label>
+      }
+      @if (errorImagen()) {
+        <p class="error-foto" role="alert">{{ errorImagen() }}</p>
+      } @else {
+        <p class="consejo">Sacala con luz natural, de frente y sin marco. Es lo primero que ve el comprador.</p>
+      }
+    </div>
+
+    <!-- Datos -->
+    <div class="form-nickart columna-datos">
+      <div class="campo" [class.con-error]="intentoEnviar() && !tituloValido">
+        <label for="titulo">Título</label>
+        <input id="titulo" name="titulo" [(ngModel)]="titulo" maxlength="100" [disabled]="ocupado" />
+        @if (intentoEnviar() && !tituloValido) {
+          <span class="error">Ponele un título a la obra.</span>
+        }
+      </div>
+
+      <div class="campo" [class.con-error]="intentoEnviar() && !tecnicaValida">
+        <label for="tecnica">Técnica</label>
+        <input id="tecnica" name="tecnica" [(ngModel)]="tecnica" maxlength="80"
+          placeholder="Óleo sobre lienzo, acuarela, grabado..." [disabled]="ocupado" />
+        @if (intentoEnviar() && !tecnicaValida) {
+          <span class="error">Indicá la técnica.</span>
+        }
+      </div>
+
+      <div class="fila-campos">
+        <div class="campo" [class.con-error]="intentoEnviar() && !medidasValidas">
+          <label for="alto">Alto (cm) <span class="opcional">opcional</span></label>
+          <input id="alto" name="alto" type="number" min="1" [(ngModel)]="alto" [disabled]="ocupado" />
+        </div>
+        <div class="campo" [class.con-error]="intentoEnviar() && !medidasValidas">
+          <label for="ancho">Ancho (cm) <span class="opcional">opcional</span></label>
+          <input id="ancho" name="ancho" type="number" min="1" [(ngModel)]="ancho" [disabled]="ocupado" />
+        </div>
+        <div class="campo" [class.con-error]="intentoEnviar() && !anioValido">
+          <label for="anio">Año <span class="opcional">opcional</span></label>
+          <input id="anio" name="anio" type="number" [max]="anioActual" [(ngModel)]="anio" [disabled]="ocupado" />
+        </div>
+      </div>
+      @if (intentoEnviar() && (!medidasValidas || !anioValido)) {
+        <span class="error-suelto">Revisá las medidas y el año.</span>
+      }
+
+      <div class="campo" [class.con-error]="intentoEnviar() && !precioValido">
+        <label for="precio">Precio en pesos</label>
+        <input id="precio" name="precio" type="number" min="1" step="1" [(ngModel)]="precio" [disabled]="ocupado" />
+        @if (intentoEnviar() && !precioValido) {
+          <span class="error">Poné un precio en pesos, sin centavos.</span>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="descripcion">Descripción <span class="opcional">opcional</span></label>
+        <textarea id="descripcion" name="descripcion" [(ngModel)]="descripcion" [maxlength]="MAX_DESCRIPCION"
+          placeholder="La historia detrás de la obra, el proceso, qué quisiste transmitir." [disabled]="ocupado"></textarea>
+        <span class="ayuda">{{ descripcion.length }} / {{ MAX_DESCRIPCION }}</span>
+      </div>
+
+      @if (error()) {
+        <p class="aviso-error" role="alert">{{ error() }}</p>
+      }
+
+      <button type="submit" class="btn-primario" [disabled]="ocupado">
+        @switch (paso()) {
+          @case ('subiendo') { Subiendo foto... }
+          @case ('guardando') { Publicando... }
+          @default { Publicar obra }
+        }
+      </button>
+    </div>
+  </form>
+</section>

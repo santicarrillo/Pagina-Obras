@@ -49,6 +49,9 @@
 
             @if (menuAbierto()) {
               <div class="user-menu">
+                <button type="button" class="menu-option" (click)="irAMisPedidos()">
+                  Mis pedidos
+                </button>
                 <button type="button" class="menu-option" (click)="cerrarSesion()">
                   Cerrar sesión
                 </button>

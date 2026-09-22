@@ -32,7 +32,7 @@ export class App {
 
   // Decide si el link del medio dice "Mis obras" o "Quiero vender"
   get esArtista(): boolean {
-    return this.auth.rol() === 'artista';
+    return this.auth.esArtista();
   }
 
   get mostrarNavegacion(): boolean {
@@ -48,9 +48,15 @@ export class App {
     this.router.navigate(['/login']);
   }
 
+  irAMisPedidos() {
+    this.menuAbierto.set(false);
+    this.router.navigate(['/mis-pedidos']);
+  }
+
   async cerrarSesion() {
-   await this.auth.salir();
- irAlHome();}
+    await this.auth.salir();
+    this.irAlHome();
+  }
 
   alternarMenu() {
     this.menuAbierto.set(!this.menuAbierto());
