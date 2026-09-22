@@ -1,0 +1,1 @@
+import{B as Iy,M as Ea,R as Ia,_t as hv}from"./main-EEQFFKBG.js";var o=class t{static ɵfac=function(e){return new(e||t)};static ɵcmp=Iy({type:t,selectors:[[`app-perfil`]],decls:2,vars:0,template:function(e,l){e&1&&(Ia(0,`p`),hv(1,`perfil works!`),Ea())},encapsulation:2})};export{o as Perfil};

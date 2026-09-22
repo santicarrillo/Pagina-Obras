@@ -1,0 +1,1 @@
+import{B as Iy,M as Ea,R as Ia,_t as hv}from"./main-EEQFFKBG.js";var i=class t{static ɵfac=function(e){return new(e||t)};static ɵcmp=Iy({type:t,selectors:[[`app-checkout`]],decls:2,vars:0,template:function(e,m){e&1&&(Ia(0,`p`),hv(1,`checkout works!`),Ea())},encapsulation:2})};export{i as Checkout};
