@@ -2,3 +2,12 @@ body {
   margin: 0;
   background: #100e0a;
 }
+    ::selection {
+  background: rgba(201, 170, 109, 0.35);
+  color: #f4ebdf;
+}
+
+/* Que el navbar no se pueda seleccionar como texto */
+.app-topbar {
+  user-select: none;
+}

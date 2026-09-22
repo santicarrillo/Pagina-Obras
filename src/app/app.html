@@ -16,41 +16,47 @@
   </div>
 } @else {
   <header class="app-topbar">
-    <div class="topbar-left">
-      <button class="brand-button" type="button" (click)="irAlHome()">
-        NICKART
-      </button>
+  <div class="topbar-inner">
+    <button class="brand-button" type="button" (click)="irAlHome()">
+      NICKART
+    </button>
 
-      @if (mostrarNavegacion) {
-        <nav class="topbar-nav" aria-label="Navegación principal">
-          <a routerLink="/obras">Obras</a>
-          <a routerLink="/">Sobre mí</a>
-          <a routerLink="/">Contacto</a>
-        </nav>
+    @if (mostrarNavegacion) {
+      <nav class="topbar-nav" aria-label="Navegación principal">
+        <a routerLink="/obras" routerLinkActive="activo">Obras</a>
+        <a routerLink="/" fragment="sobre-mi">Sobre mí</a>
+        <a routerLink="/" fragment="contacto">Contacto</a>
+      </nav>
+    }
+
+    <div class="topbar-right">
+      @if (auth.estaLogueado()) {
+        <div class="user-menu-wrap">
+          <button class="user-button" type="button" (click)="alternarMenu()" aria-label="Abrir menú de usuario">
+            @if (fotoUsuario) {
+              <img class="user-avatar" [src]="fotoUsuario" alt="" referrerpolicy="no-referrer" />
+            } @else {
+              <span class="user-avatar">{{ inicialUsuario }}</span>
+            }
+            <span class="user-name">{{ nombreUsuario }}</span>
+          </button>
+
+          @if (menuAbierto()) {
+            <div class="user-menu">
+              <button type="button" class="menu-option" (click)="cerrarSesion()">
+                Cerrar sesión
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <button class="login-button" type="button" (click)="irALogin()">
+          Iniciar sesión
+        </button>
       }
     </div>
-
-    @if (auth.estaLogueado()) {
-      <div class="user-menu-wrap">
-        <button class="user-button" type="button" (click)="alternarMenu()" aria-label="Abrir menú de usuario">
-          <span class="user-avatar">U</span>
-          <span class="user-name">{{ nombreUsuario }}</span>
-        </button>
-
-        @if (menuAbierto()) {
-          <div class="user-menu">
-            <button type="button" class="menu-option" (click)="cerrarSesion()">
-              Cerrar sesión
-            </button>
-          </div>
-        }
-      </div>
-    } @else {
-      <button class="login-button" type="button" (click)="irALogin()">
-        Iniciar sesión
-      </button>
-    }
-  </header>
+  </div>
+</header>
 
   <router-outlet></router-outlet>
 }

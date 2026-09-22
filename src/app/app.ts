@@ -1,10 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import {  Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Auth } from './core/services/auth';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -16,8 +16,18 @@ export class App {
   constructor(public auth: Auth) {}
 
   get nombreUsuario(): string {
-    const email = this.auth.usuario()?.email ?? '';
+    const usuario = this.auth.usuario();
+    if (usuario?.displayName) return usuario.displayName.split(' ')[0];
+    const email = usuario?.email ?? '';
     return email ? email.split('@')[0] : 'Usuario';
+  }
+
+  get fotoUsuario(): string | null {
+    return this.auth.usuario()?.photoURL ?? null;
+  }
+
+  get inicialUsuario(): string {
+    return this.nombreUsuario.charAt(0).toUpperCase();
   }
 
   get mostrarNavegacion(): boolean {
@@ -25,10 +35,7 @@ export class App {
   }
 
   irAlHome() {
-    if (this.router.url === '/login') {
-      return;
-    }
-
+    this.menuAbierto.set(false);
     this.router.navigate(['/']);
   }
 

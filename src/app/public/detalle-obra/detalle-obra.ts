@@ -120,7 +120,13 @@ export class DetalleObra {
   constructor() {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
-      const seleccionada = OBRAS.find((obra) => obra.id === id) ?? OBRAS[0];
+      const seleccionada = OBRAS.find((obra) => obra.id === id);
+
+      if (!seleccionada) {
+        this.router.navigate(['/404']);
+        return;
+      }
+
       this.obra.set(seleccionada);
     });
   }
@@ -131,7 +137,10 @@ export class DetalleObra {
     if (!obraActual) return;
 
     if (!this.auth.estaLogueado()) {
-      this.router.navigate(['/login']);
+      // Al volver del login, lo traemos de nuevo a esta obra
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: this.router.url }
+      });
       return;
     }
 

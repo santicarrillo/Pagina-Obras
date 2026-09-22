@@ -10,12 +10,10 @@
     <div class="auth-card">
       @if (enviado()) {
         <div class="status-box">
-          <h2>{{ modo() === 'registro' ? '¡Cuenta creada!' : 'Revisá tu correo' }}</h2>
+          <h2>Revisá tu correo</h2>
           <p>
             Te mandamos un link a <strong>{{ email() }}</strong>.
-            {{ modo() === 'registro'
-              ? 'Abrilo para activar tu cuenta y empezar a comprar.'
-              : 'Abrilo desde este mismo dispositivo para ingresar.' }}
+            Abrilo desde este mismo dispositivo para ingresar.
           </p>
         </div>
       } @else {
@@ -39,7 +37,7 @@
 
           <button
             class="submit-button"
-            [disabled]="cargando() || !email()"
+            [disabled]="cargando() || cargandoGoogle() || !email()"
             (click)="enviarLink()"
           >
             {{ cargando() ? 'Enviando...' : 'INGRESAR' }}
@@ -51,7 +49,12 @@
             <span class="line"></span>
           </div>
 
-          <button type="button" class="gmail-button" aria-label="Continuar con Gmail">
+          <button
+            type="button"
+            class="gmail-button"
+            [disabled]="cargando() || cargandoGoogle()"
+            (click)="ingresarConGoogle()"
+          >
             <span class="gmail-icon" aria-hidden="true">
               <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
                 <path fill="#EA4335" d="M24 9.5c3.54 0 6.72 1.22 9.23 3.63L42 6.75C37.58 2.76 31.41 0 24 0 14.88 0 6.93 4.46 2.96 10.9l9.13 7.06C14.02 12.95 18.58 9.5 24 9.5z"/>
@@ -60,7 +63,7 @@
                 <path fill="#34A853" d="M12.46 31.52A11.9 11.9 0 0 1 11.4 24c0-1.24.21-2.44.57-3.58L2.96 13.36A23.87 23.87 0 0 0 0 24c0 3.87.93 7.53 2.6 10.77l9.86-8.25z"/>
               </svg>
             </span>
-            CONTINUAR CON GMAIL
+            {{ cargandoGoogle() ? 'Conectando...' : 'Continuar con Google' }}
           </button>
         </div>
       }

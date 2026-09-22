@@ -1,5 +1,5 @@
-import { Component, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Auth } from '../../core/services/auth';
 
 @Component({
@@ -9,14 +9,18 @@ import { Auth } from '../../core/services/auth';
   styleUrl: './login.css'
 })
 export class Login {
+  private auth = inject(Auth);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
   email = signal('');
   enviado = signal(false);
   cargando = signal(false);
+  cargandoGoogle = signal(false);
   error = signal('');
   procesandoLink = signal(false);
-  modo = signal<'login' | 'registro'>('login');
 
-  constructor(private auth: Auth, private router: Router) {
+  constructor() {
     void this.inicializarLogin();
   }
 
@@ -24,11 +28,25 @@ export class Login {
     await this.auth.esperarListo();
 
     if (this.auth.estaLogueado()) {
-      this.router.navigate(['/']);
+      this.irADestino(this.returnUrlDeLaRuta());
       return;
     }
 
-    this.revisarSiEsLinkDeAcceso();
+    await this.revisarSiEsLinkDeAcceso();
+  }
+
+  // Solo acepta rutas internas ("/algo"), nunca URLs de otros sitios
+  private rutaSegura(url: string | null | undefined): string {
+    if (url && url.startsWith('/') && !url.startsWith('//')) return url;
+    return '/';
+  }
+
+  private returnUrlDeLaRuta(): string {
+    return this.rutaSegura(this.route.snapshot.queryParamMap.get('returnUrl'));
+  }
+
+  private irADestino(url: string) {
+    this.router.navigateByUrl(this.rutaSegura(url));
   }
 
   private async revisarSiEsLinkDeAcceso() {
@@ -38,21 +56,15 @@ export class Login {
     this.procesandoLink.set(true);
     try {
       await this.auth.completarLogin(url);
-      this.router.navigate(['/']);
+      this.irADestino(this.auth.consumirReturnUrl() ?? '/');
     } catch {
       this.error.set('No se pudo completar el ingreso. Pedí el link de nuevo.');
       this.procesandoLink.set(false);
     }
   }
 
-  cambiarModo(modo: 'login' | 'registro') {
-    this.modo.set(modo);
-    this.error.set('');
-    this.enviado.set(false);
-  }
-
   actualizarEmail(valor: string) {
-    this.email.set(valor);
+    this.email.set(valor.trim());
   }
 
   async enviarLink() {
@@ -64,14 +76,30 @@ export class Login {
     this.cargando.set(true);
     this.error.set('');
     try {
-      await this.auth.enviarLinkDeAcceso(this.email());
+      await this.auth.enviarLinkDeAcceso(this.email(), this.returnUrlDeLaRuta());
       this.enviado.set(true);
     } catch {
-      this.error.set(this.modo() === 'registro'
-        ? 'No se pudo crear la cuenta. Revisá el email.'
-        : 'No se pudo enviar el link. Revisá el email.');
+      this.error.set('No se pudo enviar el link. Revisá el email.');
     } finally {
       this.cargando.set(false);
+    }
+  }
+
+  async ingresarConGoogle() {
+    this.cargandoGoogle.set(true);
+    this.error.set('');
+    try {
+      await this.auth.ingresarConGoogle();
+      this.irADestino(this.returnUrlDeLaRuta());
+    } catch (e: any) {
+      // Si el usuario cerró la ventanita no mostramos error
+      const cancelado = e?.code === 'auth/popup-closed-by-user'
+        || e?.code === 'auth/cancelled-popup-request';
+      if (!cancelado) {
+        this.error.set('No se pudo ingresar con Google. Probá de nuevo.');
+      }
+    } finally {
+      this.cargandoGoogle.set(false);
     }
   }
 }
