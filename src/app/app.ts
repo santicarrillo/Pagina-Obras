@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import {  Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Auth } from './core/services/auth';
 
 @Component({
@@ -30,6 +30,11 @@ export class App {
     return this.nombreUsuario.charAt(0).toUpperCase();
   }
 
+  // Decide si el link del medio dice "Mis obras" o "Quiero vender"
+  get esArtista(): boolean {
+    return this.auth.rol() === 'artista';
+  }
+
   get mostrarNavegacion(): boolean {
     return !this.router.url.startsWith('/login');
   }
@@ -44,10 +49,8 @@ export class App {
   }
 
   async cerrarSesion() {
-    await this.auth.salir();
-    this.menuAbierto.set(false);
-    this.router.navigate(['/login']);
-  }
+   await this.auth.salir();
+ irAlHome();}
 
   alternarMenu() {
     this.menuAbierto.set(!this.menuAbierto());

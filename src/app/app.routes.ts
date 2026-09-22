@@ -24,6 +24,12 @@ export const routes: Routes = [
       import('./public/login/login').then(m => m.Login)
   },
   {
+    path: 'vender',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./comprador/quiero-vender/quiero-vender').then(m => m.QuieroVender)
+  },
+  {
     path: 'checkout',
     canActivate: [authGuard, roleGuard],
     data: { role: 'comprador' },
