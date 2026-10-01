@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  background: #100e0a;
+  background: #000000;
 }
 /* ---------- Formularios compartidos (alta de artista, nueva obra) ---------- */
 
@@ -78,7 +78,7 @@ body {
 
 .btn-primario {
   align-self: flex-start;
-  background: #c9aa6d;
+  background: #fefbf5;
   color: #1a150e;
   border: 0;
   border-radius: 2px;
