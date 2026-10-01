@@ -1,0 +1,40 @@
+.perfil {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 40px 24px 96px;
+  color: #f4ebdf;
+}
+
+.volver {
+  color: rgba(245, 238, 232, 0.55);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.volver:hover {
+  color: #d8bd8a;
+}
+
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+  font-size: clamp(1.9rem, 4vw, 2.4rem);
+  margin: 16px 0 10px;
+}
+
+.intro {
+  color: rgba(245, 238, 232, 0.62);
+  margin: 0 0 40px;
+}
+
+.pie {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.ok {
+  color: #9fc28a;
+  font-size: 0.9rem;
+}

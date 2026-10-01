@@ -48,9 +48,9 @@ export class App {
     this.router.navigate(['/login']);
   }
 
-  irAMisPedidos() {
+  irA(ruta: string) {
     this.menuAbierto.set(false);
-    this.router.navigate(['/mis-pedidos']);
+    this.router.navigate([ruta]);
   }
 
   async cerrarSesion() {

@@ -2,7 +2,10 @@
   <header class="panel-head">
     <div>
       <h1>Mis obras</h1>
-      <p class="firma">{{ auth.perfilArtista()?.nombreArtistico }}</p>
+      <p class="firma">
+        {{ auth.perfilArtista()?.nombreArtistico }}
+        <a routerLink="/admin/perfil" class="editar-perfil">Editar perfil</a>
+      </p>
     </div>
     @if (obras().length > 0) {
       <a routerLink="/admin/obras/nueva" class="btn-primario">Agregar obra</a>

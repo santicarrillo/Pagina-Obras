@@ -1,1 +1,48 @@
-<p>perfil works!</p>
+<section class="perfil">
+  <a routerLink="/admin/obras" class="volver">← Mis obras</a>
+  <h1>Perfil de artista</h1>
+  <p class="intro">Estos datos se muestran junto a tus obras.</p>
+
+  <form class="form-nickart" (ngSubmit)="guardar()" (input)="tocado()" novalidate>
+    <div class="campo" [class.con-error]="intentoEnviar() && !nombreValido">
+      <label for="nombre">Nombre artístico</label>
+      <input id="nombre" name="nombre" [(ngModel)]="nombreArtistico" maxlength="60" />
+      @if (intentoEnviar() && !nombreValido) {
+        <span class="error">Poné un nombre de entre 2 y 60 caracteres.</span>
+      }
+    </div>
+
+    <div class="campo">
+      <label for="ciudad">Ciudad <span class="opcional">opcional</span></label>
+      <input id="ciudad" name="ciudad" [(ngModel)]="ciudad" maxlength="60" />
+    </div>
+
+    <div class="campo" [class.con-error]="intentoEnviar() && !bioValida">
+      <label for="bio">Sobre vos</label>
+      <textarea id="bio" name="bio" [(ngModel)]="bio" [maxlength]="MAX_BIO"></textarea>
+      @if (intentoEnviar() && !bioValida) {
+        <span class="error">Contá un poco más: mínimo 20 caracteres.</span>
+      } @else {
+        <span class="ayuda">{{ bio.length }} / {{ MAX_BIO }}</span>
+      }
+    </div>
+
+    <div class="campo">
+      <label for="instagram">Instagram <span class="opcional">opcional</span></label>
+      <input id="instagram" name="instagram" [(ngModel)]="instagram" maxlength="40" placeholder="@tuusuario" />
+    </div>
+
+    @if (error()) {
+      <p class="aviso-error" role="alert">{{ error() }}</p>
+    }
+
+    <div class="pie">
+      <button type="submit" class="btn-primario" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
+      @if (guardado()) {
+        <span class="ok" role="status">Cambios guardados</span>
+      }
+    </div>
+  </form>
+</section>

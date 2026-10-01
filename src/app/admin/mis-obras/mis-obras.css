@@ -152,3 +152,18 @@ h1 {
   color: #e3a08f;
   border-bottom-color: currentColor;
 }
+
+.editar-perfil {
+  font-family: inherit;
+  font-style: normal;
+  font-size: 0.82rem;
+  color: rgba(245, 238, 232, 0.5);
+  margin-left: 14px;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(245, 238, 232, 0.2);
+}
+
+.editar-perfil:hover {
+  color: #d8bd8a;
+  border-bottom-color: currentColor;
+}

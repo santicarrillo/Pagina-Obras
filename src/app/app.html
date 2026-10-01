@@ -49,9 +49,14 @@
 
             @if (menuAbierto()) {
               <div class="user-menu">
-                <button type="button" class="menu-option" (click)="irAMisPedidos()">
+                <button type="button" class="menu-option" (click)="irA('/mis-pedidos')">
                   Mis pedidos
                 </button>
+                @if (esArtista) {
+                  <button type="button" class="menu-option" (click)="irA('/admin/perfil')">
+                    Perfil de artista
+                  </button>
+                }
                 <button type="button" class="menu-option" (click)="cerrarSesion()">
                   Cerrar sesión
                 </button>

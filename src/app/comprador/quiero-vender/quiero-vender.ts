@@ -48,8 +48,13 @@ export class QuieroVender {
         instagram: this.instagram.trim().replace(/^@/, '')
       });
       this.router.navigate(['/admin/obras']);
-    } catch {
-      this.error.set('No pudimos activar tu perfil. Revisá tu conexión y probá de nuevo.');
+    } catch (e: any) {
+      console.error(e);
+      this.error.set(
+        e?.code === 'permission-denied'
+          ? 'No tenés permiso para crear el perfil. Revisá las reglas de Firestore.'
+          : 'No pudimos activar tu perfil. Revisá tu conexión y probá de nuevo.'
+      );
     } finally {
       this.guardando.set(false);
     }

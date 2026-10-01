@@ -4,7 +4,7 @@ import {
   signInWithEmailLink, signInWithPopup, GoogleAuthProvider,
   onAuthStateChanged, signOut, User
 } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { firebaseApp } from './firebase';
 
 export type Rol = 'comprador';
@@ -120,11 +120,27 @@ export class Auth {
     this.perfilPromise = Promise.resolve({ rol: 'comprador', artista: datos });
   }
 
+  async actualizarPerfilArtista(datos: PerfilArtista) {
+    const user = this.usuario();
+    if (!user || !this.esArtista()) throw new Error('No tenés perfil de artista');
+
+    // Solo se mandan estos 4 campos: la fecha de alta no se toca
+    await updateDoc(doc(this.db, 'artists', user.uid), {
+      nombreArtistico: datos.nombreArtistico,
+      ciudad: datos.ciudad,
+      bio: datos.bio,
+      instagram: datos.instagram
+    });
+
+    this.perfilArtista.set(datos);
+    this.perfilPromise = Promise.resolve({ rol: 'comprador', artista: datos });
+  }
+
   // ---------- Login con email (link) ----------
 
   async enviarLinkDeAcceso(email: string, returnUrl = '/') {
     await sendSignInLinkToEmail(this.auth, email, {
-      url: window.location.origin + '/login',
+      url: new URL('login', document.baseURI).href,
       handleCodeInApp: true
     });
     window.localStorage.setItem(CLAVE_EMAIL, email);

@@ -1,28 +1,35 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-
-interface Obra {
-  id: string;
-  titulo: string;
-  tecnica: string;
-  imagenUrl: string;
-}
+import { Artworks, Obra } from '../../core/services/artworks';
+import { Auth } from '../../core/services/auth';
+import { OBRAS_DEMO } from '../../core/data/obras-demo';
+import { TarjetaObra } from '../../shared/tarjeta-obra/tarjeta-obra';
 
 @Component({
   selector: 'app-galeria',
-  imports: [RouterLink],
+  imports: [RouterLink, TarjetaObra],
   templateUrl: './galeria.html',
   styleUrl: './galeria.css',
 })
-export class Galeria {
-  obras = signal<Obra[]>([
-    { id: '1', titulo: 'Atardecer en el campo', tecnica: 'Óleo sobre lienzo', imagenUrl: '' },
-    { id: '2', titulo: 'Retrato en azul', tecnica: 'Acrílico', imagenUrl: '' },
-    { id: '3', titulo: 'Formas abstractas', tecnica: 'Mixta sobre madera', imagenUrl: '' },
-    { id: '4', titulo: 'Noche de piedra', tecnica: 'Carbonilla', imagenUrl: '' },
-    { id: '5', titulo: 'Ventana de verano', tecnica: 'Gouache', imagenUrl: '' },
-    { id: '6', titulo: 'Luz sobre barro', tecnica: 'Óleo sobre tabla', imagenUrl: '' },
-    { id: '7', titulo: 'Párpados de humo', tecnica: 'Acrílico sobre lienzo', imagenUrl: '' },
-    { id: '8', titulo: 'Cuerpo de viento', tecnica: 'Mixta', imagenUrl: '' },
-  ]);
+export class Galeria implements OnInit {
+  private artworks = inject(Artworks);
+  auth = inject(Auth);
+
+  obras = signal<Obra[]>([]);
+  cargando = signal(true);
+  error = signal('');
+
+  async ngOnInit() {
+    try {
+      const reales = await this.artworks.publicadas();
+      // Las de prueba solo existen con `ng serve`; en producción la lista está vacía
+      this.obras.set([...reales, ...OBRAS_DEMO]);
+    } catch (e) {
+      console.error(e);
+      this.obras.set(OBRAS_DEMO);
+      this.error.set('No pudimos cargar las obras. Recargá la página para intentar de nuevo.');
+    } finally {
+      this.cargando.set(false);
+    }
+  }
 }

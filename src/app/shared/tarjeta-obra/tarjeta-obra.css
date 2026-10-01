@@ -1,0 +1,125 @@
+:host {
+  display: block;
+}
+
+.tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.marco {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: #1a1712;
+  border: 1px solid rgba(201, 170, 109, 0.16);
+}
+
+.marco img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease, filter 0.35s ease;
+}
+
+/* Capa con técnica y descripción: oculta por defecto */
+.hover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 22px 20px;
+  background: linear-gradient(to top, rgba(10, 8, 5, 0.94) 0%, rgba(10, 8, 5, 0.72) 45%, rgba(10, 8, 5, 0) 100%);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.tecnica {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #d8bd8a;
+}
+
+.descripcion {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: rgba(245, 238, 232, 0.88);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ver {
+  font-size: 0.78rem;
+  color: rgba(245, 238, 232, 0.6);
+}
+
+/* Solo en dispositivos con mouse; en el celu se toca y se va al detalle */
+@media (hover: hover) {
+  .tarjeta:hover .hover,
+  .tarjeta:focus-visible .hover {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .tarjeta:hover img {
+    transform: scale(1.03);
+    filter: brightness(0.85);
+  }
+}
+
+.tarjeta:focus-visible {
+  outline: 1px solid #d8bd8a;
+  outline-offset: 6px;
+}
+
+.datos {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'titulo precio'
+    'artista artista';
+  column-gap: 16px;
+  row-gap: 4px;
+  align-items: baseline;
+}
+
+.titulo {
+  grid-area: titulo;
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+  font-size: 1.12rem;
+  color: #f4ebdf;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.precio {
+  grid-area: precio;
+  margin: 0;
+  font-size: 0.95rem;
+  color: #d8bd8a;
+  font-variant-numeric: tabular-nums;
+}
+
+.artista {
+  grid-area: artista;
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 0.92rem;
+  color: rgba(245, 238, 232, 0.6);
+}

@@ -1,20 +1,32 @@
-<div class="galeria-page">
-  <main class="galeria-wrap">
-    <div class="titulo-wrap">
-      <p class="eyebrow">Colección completa</p>
-      <h1>Obras</h1>
-    </div>
+<section class="galeria">
+  <header class="encabezado">
+    <p class="eyebrow">Obras únicas de artistas independientes</p>
+    <h1>Galería</h1>
+  </header>
 
-    <section class="grid-obras">
-      @for (obra of obras(); track obra.id) {
-        <article class="tarjeta-obra" [routerLink]="['/obra', obra.id]">
-          <div class="imagen" [style.background-image]="'url(' + obra.imagenUrl + ')'" aria-label="{{ obra.titulo }}"></div>
-          <div class="meta">
-            <h2>{{ obra.titulo }}</h2>
-            <p>{{ obra.tecnica.toUpperCase() }}</p>
-          </div>
-        </article>
+  @if (error()) {
+    <p class="aviso-error" role="alert">{{ error() }}</p>
+  }
+
+  @if (cargando()) {
+    <ul class="grilla" aria-busy="true" aria-label="Cargando obras">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <li class="esqueleto"><div class="esq-marco"></div><div class="esq-linea"></div><div class="esq-linea corta"></div></li>
       }
-    </section>
-  </main>
-</div>
+    </ul>
+  } @else if (obras().length === 0) {
+    <div class="vacio">
+      <h2>La galería se está armando</h2>
+      <p>Todavía no hay obras publicadas. Si sos artista, podés ser de los primeros en mostrar tu trabajo.</p>
+      <a class="btn-primario" [routerLink]="auth.esArtista() ? '/admin/obras/nueva' : '/vender'">
+        {{ auth.esArtista() ? 'Publicar una obra' : 'Quiero vender' }}
+      </a>
+    </div>
+  } @else {
+    <ul class="grilla">
+      @for (obra of obras(); track obra.id) {
+        <li><app-tarjeta-obra [obra]="obra" /></li>
+      }
+    </ul>
+  }
+</section>

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import {
-  getFirestore, collection, addDoc, getDocs, deleteDoc, doc,
+  getFirestore, collection, addDoc, getDoc, getDocs, deleteDoc, doc,
   query, where, serverTimestamp, Timestamp
 } from 'firebase/firestore';
 import { firebaseApp } from './firebase';
@@ -66,6 +66,28 @@ export class Artworks {
     return snap.docs
       .map(d => this.aObra(d.id, d.data()))
       .sort((a, b) => (b.creadoEn?.getTime() ?? 0) - (a.creadoEn?.getTime() ?? 0));
+  }
+
+  // Todas las obras a la venta, de todos los artistas, las más nuevas primero.
+  // El filtro por estado es obligatorio: las reglas rechazan una consulta que
+  // pueda traer obras no publicadas.
+  async publicadas(): Promise<Obra[]> {
+    const snap = await getDocs(query(this.coleccion, where('estado', '==', 'publicada')));
+    return snap.docs
+      .map(d => this.aObra(d.id, d.data()))
+      .sort((a, b) => (b.creadoEn?.getTime() ?? 0) - (a.creadoEn?.getTime() ?? 0));
+  }
+
+  // Una obra por id. Devuelve null si no existe o si no tenés permiso para verla
+  // (por ejemplo, una obra rechazada de otro artista).
+  async obtener(id: string): Promise<Obra | null> {
+    try {
+      const snap = await getDoc(doc(this.db, 'artworks', id));
+      return snap.exists() ? this.aObra(snap.id, snap.data()) : null;
+    } catch (e: any) {
+      if (e?.code === 'permission-denied') return null;
+      throw e;
+    }
   }
 
   async eliminar(id: string) {

@@ -1,1 +1,20 @@
-<p>tarjeta-obra works!</p>
+<a class="tarjeta" [routerLink]="['/obra', obra().id]">
+  <div class="marco">
+    <img [src]="obra().imagenUrl" [alt]="obra().titulo" loading="lazy" />
+
+    <!-- Solo en compu: al pasar el mouse -->
+    <div class="hover" aria-hidden="true">
+      <span class="tecnica">{{ obra().tecnica }}@if (obra().medidas) { · {{ obra().medidas }}}</span>
+      @if (obra().descripcion) {
+        <p class="descripcion">{{ obra().descripcion }}</p>
+      }
+      <span class="ver">Ver obra →</span>
+    </div>
+  </div>
+
+  <div class="datos">
+    <h3 class="titulo">{{ obra().titulo }}</h3>
+    <p class="artista">{{ obra().artistaNombre }}</p>
+    <p class="precio">{{ precio(obra().precio) }}</p>
+  </div>
+</a>

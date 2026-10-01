@@ -11,25 +11,14 @@
   padding: 24px 32px 56px;
 }
 
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 36px;
-}
-
 .back-link {
+  display: inline-block;
+  margin-bottom: 32px;
   color: #d8c8a4;
   text-decoration: none;
   font-size: 12px;
   letter-spacing: 1.4px;
   text-transform: uppercase;
-}
-
-.brand {
-  font-family: 'Playfair Display', serif;
-  font-size: 18px;
-  letter-spacing: 2px;
 }
 
 .detalle-layout {
@@ -46,10 +35,10 @@
 
 .obra-imagen {
   width: min(100%, 560px);
-  aspect-ratio: 4 / 5;
-  background-size: cover;
-  background-position: center;
-  background-color: #c9a876;
+  max-height: 78vh;
+  object-fit: contain;
+  display: block;
+  background-color: #1a1712;
   border: 1px solid rgba(201, 168, 118, 0.4);
   box-shadow: 0 28px 48px rgba(0, 0, 0, 0.26);
 }
@@ -67,11 +56,29 @@
 }
 
 .obra-info h1 {
-  margin: 0 0 18px;
+  margin: 0 0 10px;
   font-family: 'Playfair Display', serif;
   font-size: clamp(36px, 5vw, 58px);
   font-weight: 400;
   line-height: 0.96;
+}
+
+.artista {
+  margin: 0 0 24px;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: #d8bd8a;
+}
+
+.estado-obra {
+  margin: 0;
+  color: rgba(245, 238, 232, 0.65);
+  font-size: 0.95rem;
+}
+
+.cta-button + .estado-obra {
+  margin-top: 16px;
 }
 
 .descripcion {
@@ -173,7 +180,42 @@
     gap: 28px;
   }
 
-  .topbar {
-    margin-bottom: 18px;
-  }
+}
+
+.acciones-duenio {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.link-panel,
+.btn-eliminar {
+  background: none;
+  border: 0;
+  padding: 0 0 2px;
+  font: inherit;
+  font-size: 0.85rem;
+  text-decoration: none;
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+}
+
+.link-panel {
+  color: #d8bd8a;
+  border-bottom-color: rgba(216, 189, 138, 0.35);
+}
+
+.btn-eliminar {
+  color: rgba(245, 238, 232, 0.5);
+}
+
+.btn-eliminar:hover:not(:disabled) {
+  color: #e3a08f;
+  border-bottom-color: currentColor;
+}
+
+.btn-eliminar:disabled {
+  cursor: default;
+  opacity: 0.6;
 }

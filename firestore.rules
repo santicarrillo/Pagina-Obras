@@ -1,0 +1,124 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Helpers ----------
+
+    function logueado() {
+      return request.auth != null;
+    }
+
+    function esDueno(uid) {
+      return logueado() && request.auth.uid == uid;
+    }
+
+    // Ser artista = tener documento en /artists con tu uid
+    function esArtista() {
+      return logueado()
+        && exists(/databases/$(database)/documents/artists/$(request.auth.uid));
+    }
+
+    function textoEntre(valor, min, max) {
+      return valor is string && valor.size() >= min && valor.size() <= max;
+    }
+
+    // ---------- Usuarios (todos son compradores) ----------
+
+    match /users/{uid} {
+      allow read: if esDueno(uid);
+
+      allow create: if esDueno(uid)
+        && request.resource.data.role == 'comprador';
+
+      // Puede editar su perfil, pero nunca cambiar su rol
+      allow update: if esDueno(uid)
+        && request.resource.data.role == resource.data.role;
+
+      allow delete: if false;
+    }
+
+    // ---------- Perfil de artista (cualquiera se puede dar de alta) ----------
+
+    match /artists/{uid} {
+      function perfilValido() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['nombreArtistico', 'ciudad', 'bio', 'instagram', 'creadoEn'])
+          && textoEntre(d.nombreArtistico, 2, 60)
+          && textoEntre(d.ciudad, 0, 60)
+          && textoEntre(d.bio, 20, 600)
+          && textoEntre(d.instagram, 0, 40);
+      }
+
+      // Es público: la galería muestra quién hizo cada obra
+      allow read: if true;
+
+      // Solo podés crear TU perfil, no el de otro
+      allow create: if esDueno(uid)
+        && perfilValido()
+        && request.resource.data.creadoEn == request.time;
+
+      allow update: if esDueno(uid)
+        && perfilValido()
+        && request.resource.data.creadoEn == resource.data.creadoEn;
+
+      allow delete: if false;
+    }
+
+    // ---------- Obras ----------
+
+    match /artworks/{obraId} {
+      function datosObraValidos() {
+        let d = request.resource.data;
+        return textoEntre(d.titulo, 1, 100)
+          && textoEntre(d.tecnica, 2, 80)
+          && textoEntre(d.medidas, 0, 40)
+          && textoEntre(d.descripcion, 0, 1000)
+          && (d.anio == null || d.anio is int)
+          && d.precio is int && d.precio > 0;
+      }
+
+      // Todos ven las publicadas; el artista además ve las suyas en cualquier estado
+      allow read: if resource.data.estado == 'publicada'
+        || (logueado() && resource.data.artistId == request.auth.uid);
+
+      allow create: if esArtista()
+        && request.resource.data.keys().hasOnly([
+             'titulo', 'tecnica', 'medidas', 'anio', 'precio', 'descripcion',
+             'imagenUrl', 'artistId', 'artistaNombre', 'estado', 'creadoEn'])
+        && datosObraValidos()
+        && request.resource.data.artistId == request.auth.uid
+        && textoEntre(request.resource.data.artistaNombre, 2, 60)
+        // Solo imágenes de TU cuenta de Cloudinary
+        && request.resource.data.imagenUrl.matches('https://res[.]cloudinary[.]com/xmmd0cpx/.*')
+        // Cuando exista la moderación automática, esto pasa a 'procesando'
+        && request.resource.data.estado == 'publicada'
+        && request.resource.data.creadoEn == request.time;
+
+      // Se chequea el dueño con `resource` (datos ACTUALES), así nadie se apropia de una obra ajena.
+      // No se puede cambiar dueño, estado, imagen ni fecha.
+      allow update: if logueado()
+        && resource.data.artistId == request.auth.uid
+        && resource.data.estado != 'vendida'
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['titulo', 'tecnica', 'medidas', 'anio', 'precio', 'descripcion'])
+        && datosObraValidos();
+
+      // Al borrar no existe request.resource, por eso se usa resource
+      allow delete: if logueado()
+        && resource.data.artistId == request.auth.uid
+        && resource.data.estado != 'vendida';
+    }
+
+    // ---------- Pedidos ----------
+
+    match /orders/{pedidoId} {
+      allow read: if logueado()
+        && (resource.data.buyerId == request.auth.uid
+            || resource.data.artistId == request.auth.uid);
+
+      // Los crea y actualiza SOLO el backend de Mercado Pago (que no pasa por estas reglas).
+      // Desde el navegador nadie puede inventar un pedido "pagado".
+      allow write: if false;
+    }
+  }
+}

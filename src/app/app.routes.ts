@@ -3,10 +3,11 @@ import { authGuard } from './guards/auth-guard';
 import { artistaGuard, noArtistaGuard } from './guards/artista-guard';
 
 export const routes: Routes = [
+  // El home ES la galería: todas las obras de todos los artistas
   {
     path: '',
     loadComponent: () =>
-      import('./public/home/home').then(m => m.Home)
+      import('./public/galeria/galeria').then(m => m.Galeria)
   },
   {
     path: 'obras',
