@@ -109,6 +109,24 @@ service cloud.firestore {
         && resource.data.estado != 'vendida';
     }
 
+    // ---------- Mercado Pago ----------
+
+    // Si un artista ya conectó su cuenta y puede cobrar. Lo escribe solo el backend.
+    match /pagos_artistas/{uid} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Tokens de Mercado Pago de cada artista y estados temporales del login con MP.
+    // Nadie los puede leer ni escribir desde el navegador: solo el backend.
+    match /mp_cuentas/{uid} {
+      allow read, write: if false;
+    }
+
+    match /mp_oauth_states/{id} {
+      allow read, write: if false;
+    }
+
     // ---------- Pedidos ----------
 
     match /orders/{pedidoId} {

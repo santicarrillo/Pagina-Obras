@@ -16,6 +16,33 @@
     <p class="aviso-error" role="alert">{{ error() }}</p>
   }
 
+  @if (avisoMp()) {
+    <p class="aviso-ok" role="status">{{ avisoMp() }}</p>
+  }
+  @if (errorMp()) {
+    <p class="aviso-error" role="alert">{{ errorMp() }}</p>
+  }
+
+  @if (mpConectado() === false) {
+    <div class="banner-mp">
+      <div>
+        <h2>Conectá tu Mercado Pago para empezar a vender</h2>
+        <p>
+          La plata de cada venta te llega directo a tu cuenta. Hasta que la conectes,
+          tus obras se ven en la galería pero no se pueden comprar.
+        </p>
+      </div>
+      <button type="button" class="btn-primario" (click)="conectarMercadoPago()" [disabled]="conectando()">
+        {{ conectando() ? 'Abriendo Mercado Pago...' : 'Conectar Mercado Pago' }}
+      </button>
+    </div>
+  } @else if (mpConectado()) {
+    <p class="mp-ok">
+      ✓ Mercado Pago conectado
+      <a routerLink="/admin/pagos" class="link-ventas">Ver mis ventas</a>
+    </p>
+  }
+
   @if (cargando()) {
     <p class="estado-carga">Cargando tus obras...</p>
   } @else if (obras().length === 0 && !error()) {

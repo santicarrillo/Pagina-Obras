@@ -1,1 +1,55 @@
-<p>mis-pagos works!</p>
+<section class="ventas">
+  <a routerLink="/admin/obras" class="volver">← Mis obras</a>
+  <h1>Mis ventas</h1>
+
+  @if (!cargando() && ventas().length) {
+    <p class="resumen">
+      {{ ventas().length }} {{ ventas().length === 1 ? 'venta' : 'ventas' }} ·
+      <strong>{{ precio(totalVendido()) }}</strong> cobrados en tu Mercado Pago
+    </p>
+  }
+
+  @if (error()) {
+    <p class="aviso-error" role="alert">{{ error() }}</p>
+  }
+
+  @if (cargando()) {
+    <p class="cargando">Cargando tus ventas...</p>
+  } @else if (ventas().length === 0 && !error()) {
+    <div class="vacio">
+      <h2>Todavía no vendiste ninguna obra</h2>
+      <p>Cuando alguien compre, vas a ver acá quién fue y cómo contactarlo para coordinar el envío.</p>
+    </div>
+  } @else {
+    <ul class="lista">
+      @for (v of ventas(); track v.id) {
+        <li class="venta">
+          <header class="cabecera">
+            <p class="fecha">{{ fecha(v.pagadoEn ?? v.creadoEn) }}</p>
+            <strong class="total">{{ precio(v.total) }}</strong>
+          </header>
+
+          <ul class="items">
+            @for (item of v.items; track item.id) {
+              <li class="item">
+                <img [src]="item.imagenUrl" [alt]="item.titulo" />
+                <p class="titulo">{{ item.titulo }}</p>
+              </li>
+            }
+          </ul>
+
+          <div class="comprador">
+            <span class="etiqueta">Comprador</span>
+            <p>
+              {{ v.buyerNombre || 'Sin nombre' }}
+              @if (v.buyerEmail) {
+                · <a [href]="'mailto:' + v.buyerEmail + '?subject=Tu compra en Anverso'">{{ v.buyerEmail }}</a>
+              }
+            </p>
+            <p class="ayuda">Escribile para coordinar el envío o la entrega.</p>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>

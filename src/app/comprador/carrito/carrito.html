@@ -9,6 +9,9 @@
   @for (aviso of carrito.avisos(); track aviso) {
     <p class="aviso" role="status">{{ aviso }}</p>
   }
+  @if (error()) {
+    <p class="aviso-error" role="alert">{{ error() }}</p>
+  }
 
   @if (carrito.cantidad() === 0) {
     <div class="vacio">
@@ -17,51 +20,63 @@
       <a routerLink="/" class="btn-primario">Ver la galería</a>
     </div>
   } @else {
-    <div class="layout">
-      <ul class="lista">
-        @for (item of carrito.items(); track item.id) {
-          <li class="item">
-            <a class="miniatura" [routerLink]="['/obra', item.id]">
-              <img [src]="item.imagenUrl" [alt]="item.titulo" />
-            </a>
-            <div class="item-datos">
-              <a class="titulo" [routerLink]="['/obra', item.id]">{{ item.titulo }}</a>
-              <a class="artista" [routerLink]="['/artista', item.artistId]">{{ item.artistaNombre }}</a>
-              <button type="button" class="quitar" (click)="quitar(item)">Quitar</button>
-            </div>
-            <p class="item-precio">{{ precio(item.precio) }}</p>
-          </li>
-        }
-      </ul>
+    @if (grupos().length > 1) {
+      <p class="nota-artistas">
+        Tu carrito tiene obras de {{ grupos().length }} artistas. Cada artista cobra en su propia cuenta,
+        así que se paga por separado.
+      </p>
+    }
 
-      <aside class="resumen" aria-label="Resumen de la compra">
-        <div class="fila">
-          <span>Subtotal</span>
-          <span>{{ precio(carrito.total()) }}</span>
-        </div>
-        <div class="fila nota">
-          <span>Envío</span>
-          <span>Lo coordina cada artista</span>
-        </div>
-        <div class="fila total">
-          <span>Total</span>
-          <strong>{{ precio(carrito.total()) }}</strong>
-        </div>
+    @for (grupo of grupos(); track grupo.artistId) {
+      <section class="grupo" [attr.aria-label]="'Obras de ' + grupo.artistaNombre">
+        <ul class="lista">
+          @for (item of grupo.items; track item.id) {
+            <li class="item">
+              <a class="miniatura" [routerLink]="['/obra', item.id]">
+                <img [src]="item.imagenUrl" [alt]="item.titulo" />
+              </a>
+              <div class="item-datos">
+                <a class="titulo" [routerLink]="['/obra', item.id]">{{ item.titulo }}</a>
+                <a class="artista" [routerLink]="['/artista', item.artistId]">{{ item.artistaNombre }}</a>
+                <button type="button" class="quitar" (click)="quitar(item)">Quitar</button>
+              </div>
+              <p class="item-precio">{{ precio(item.precio) }}</p>
+            </li>
+          }
+        </ul>
 
-        <button type="button" class="btn-primario pagar" (click)="pagar()" [disabled]="revisando()">
-          {{ revisando() ? 'Revisando disponibilidad...' : 'Pagar con Mercado Pago' }}
-        </button>
+        <aside class="resumen">
+          @if (grupos().length > 1) {
+            <p class="resumen-artista">{{ grupo.artistaNombre }}</p>
+          }
+          <div class="fila">
+            <span>Subtotal</span>
+            <span>{{ precio(grupo.total) }}</span>
+          </div>
+          <div class="fila nota">
+            <span>Envío</span>
+            <span>Lo coordina el artista</span>
+          </div>
+          <div class="fila total">
+            <span>Total</span>
+            <strong>{{ precio(grupo.total) }}</strong>
+          </div>
 
-        @if (avisoPago()) {
-          <p class="aviso-pago" role="status">El pago con Mercado Pago llega muy pronto. Tu carrito queda guardado.</p>
-        }
+          @if (revisando()) {
+            <button type="button" class="btn-primario pagar" disabled>Revisando disponibilidad...</button>
+          } @else if (habilitados()[grupo.artistId]) {
+            <button type="button" class="btn-primario pagar" (click)="pagar(grupo)" [disabled]="pagando() !== null">
+              {{ pagando() === grupo.artistId ? 'Yendo a Mercado Pago...' : 'Pagar con Mercado Pago' }}
+            </button>
+          } @else {
+            <p class="no-habilitado">
+              {{ grupo.artistaNombre }} todavía no habilitó los pagos. Podés dejar la obra en tu carrito y volver más adelante.
+            </p>
+          }
+        </aside>
+      </section>
+    }
 
-        @if (artistas() > 1) {
-          <p class="nota-artistas">Tu compra incluye obras de {{ artistas() }} artistas. Cada uno te envía la suya.</p>
-        }
-
-        <a routerLink="/" class="seguir">← Seguir mirando</a>
-      </aside>
-    </div>
+    <a routerLink="/" class="seguir">← Seguir mirando</a>
   }
 </section>

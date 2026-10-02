@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Artworks, EstadoObra, Obra } from '../../core/services/artworks';
 import { Auth } from '../../core/services/auth';
+import { Pagos, mensajeDeError } from '../../core/services/mercadopago';
 
 @Component({
   selector: 'app-mis-obras',
@@ -12,6 +13,14 @@ import { Auth } from '../../core/services/auth';
 export class MisObras implements OnInit {
   private artworks = inject(Artworks);
   auth = inject(Auth);
+  private pagos = inject(Pagos);
+  private route = inject(ActivatedRoute);
+
+  // Mercado Pago: null = cargando
+  mpConectado = signal<boolean | null>(null);
+  conectando = signal(false);
+  avisoMp = signal('');
+  errorMp = signal('');
 
   obras = signal<Obra[]>([]);
   cargando = signal(true);
@@ -34,6 +43,7 @@ export class MisObras implements OnInit {
   }
 
   async ngOnInit() {
+    this.revisarMercadoPago();
     try {
       this.obras.set(await this.artworks.misObras());
     } catch {
@@ -54,6 +64,33 @@ export class MisObras implements OnInit {
       this.error.set(`No se pudo eliminar "${obra.titulo}".`);
     } finally {
       this.borrando.set(null);
+    }
+  }
+
+  private async revisarMercadoPago() {
+    const resultado = this.route.snapshot.queryParamMap.get('mp');
+    const mensajes: Record<string, string> = {
+      conectado: '¡Listo! Tu cuenta de Mercado Pago quedó conectada. Ya podés vender.',
+      cancelado: 'Cancelaste la conexión con Mercado Pago. Podés intentarlo de nuevo cuando quieras.',
+      vencido: 'El link para conectar Mercado Pago venció. Probá de nuevo.',
+      error: 'No pudimos conectar tu cuenta de Mercado Pago. Probá de nuevo en un rato.'
+    };
+    if (resultado && mensajes[resultado]) {
+      (resultado === 'conectado' ? this.avisoMp : this.errorMp).set(mensajes[resultado]);
+    }
+    const uid = this.auth.usuario()?.uid;
+    this.mpConectado.set(uid ? await this.pagos.puedeCobrar(uid) : false);
+  }
+
+  async conectarMercadoPago() {
+    this.conectando.set(true);
+    this.errorMp.set('');
+    try {
+      await this.pagos.conectarMercadoPago();
+    } catch (e) {
+      console.error(e);
+      this.errorMp.set(mensajeDeError(e, 'No pudimos abrir Mercado Pago. Probá de nuevo en un rato.'));
+      this.conectando.set(false);
     }
   }
 }

@@ -4,6 +4,7 @@ import { Auth } from '../../core/services/auth';
 import { Artworks, Obra } from '../../core/services/artworks';
 import { OBRAS_DEMO } from '../../core/data/obras-demo';
 import { Carrito } from '../../core/services/carrito';
+import { Pagos } from '../../core/services/mercadopago';
 
 const PESOS = new Intl.NumberFormat('es-AR', {
   style: 'currency', currency: 'ARS', maximumFractionDigits: 0
@@ -21,6 +22,9 @@ export class DetalleObra {
   private auth = inject(Auth);
   private artworks = inject(Artworks);
   carrito = inject(Carrito);
+  private pagos = inject(Pagos);
+  // null = todavía no se sabe
+  puedeCobrar = signal<boolean | null>(null);
 
   obra = signal<Obra | null>(null);
   error = signal('');
@@ -33,11 +37,13 @@ export class DetalleObra {
 
   private async cargar(id: string) {
     this.obra.set(null);
+    this.puedeCobrar.set(null);
     this.error.set('');
 
     const demo = OBRAS_DEMO.find(o => o.id === id);
     if (demo) {
       this.obra.set(demo);
+      this.puedeCobrar.set(true);
       return;
     }
 
@@ -48,6 +54,7 @@ export class DetalleObra {
         return;
       }
       this.obra.set(obra);
+      this.puedeCobrar.set(await this.pagos.puedeCobrar(obra.artistId));
     } catch (e) {
       console.error(e);
       this.error.set('No pudimos cargar la obra. Revisá tu conexión y recargá la página.');

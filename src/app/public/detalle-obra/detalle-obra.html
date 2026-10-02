@@ -52,7 +52,9 @@
             <p class="aviso-error" role="alert">{{ errorEliminar() }}</p>
           }
         } @else {
-          @if (carrito.tiene(o.id)) {
+          @if (puedeCobrar() === false) {
+            <p class="estado-obra">Disponible muy pronto: el artista está terminando de habilitar los pagos.</p>
+          } @else if (carrito.tiene(o.id)) {
             <div class="en-carrito">
               <p class="estado-obra">✓ Está en tu carrito</p>
               <a routerLink="/carrito" class="cta-button">Ver carrito</a>

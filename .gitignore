@@ -42,3 +42,9 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Firebase Functions
+/functions/node_modules
+/functions/.secret.local
+.firebase/
+firebase-debug.log
