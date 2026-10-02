@@ -1,1 +1,0 @@
-import{M as My,On as wv,et as Ta,p as Da}from"./chunk-W-M3AJNQ.js";var n=class s{static ɵfac=function(e){return new(e||s)};static ɵcmp=My({type:s,selectors:[[`app-mis-pagos`]],decls:2,vars:0,template:function(e,p){e&1&&(Da(0,`p`),wv(1,`mis-pagos works!`),Ta())},encapsulation:2})};export{n as MisPagos};

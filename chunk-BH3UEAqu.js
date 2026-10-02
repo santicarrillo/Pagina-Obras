@@ -1,1 +1,0 @@
-import{M as My,On as wv,et as Ta,p as Da}from"./chunk-W-M3AJNQ.js";var i=class t{static ɵfac=function(e){return new(e||t)};static ɵcmp=My({type:t,selectors:[[`app-checkout`]],decls:2,vars:0,template:function(e,m){e&1&&(Da(0,`p`),wv(1,`checkout works!`),Ta())},encapsulation:2})};export{i as Checkout};
