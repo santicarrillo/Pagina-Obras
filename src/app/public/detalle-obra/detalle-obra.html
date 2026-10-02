@@ -10,7 +10,7 @@
       <article class="obra-info">
         <p class="eyebrow">{{ o.tecnica }}</p>
         <h1>{{ o.titulo }}</h1>
-        <p class="artista">por {{ o.artistaNombre }}</p>
+        <p class="artista">por <a [routerLink]="['/artista', o.artistId]">{{ o.artistaNombre }}</a></p>
 
         @if (o.descripcion) {
           <p class="descripcion">{{ o.descripcion }}</p>

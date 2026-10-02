@@ -1,0 +1,186 @@
+.artista {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 56px 32px 96px;
+  color: #f4ebdf;
+  box-sizing: border-box;
+}
+
+/* ---------- Encabezado del artista ---------- */
+
+.perfil {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  padding-bottom: 44px;
+  margin-bottom: 48px;
+  border-bottom: 1px solid rgba(201, 170, 109, 0.18);
+}
+
+.inicial {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 1px solid rgba(216, 189, 138, 0.4);
+  background: rgba(216, 189, 138, 0.08);
+  color: #d8bd8a;
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #a89e8c;
+}
+
+h1 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  line-height: 1.05;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+  color: rgba(245, 238, 232, 0.55);
+}
+
+.meta a {
+  color: #d8bd8a;
+  text-decoration: none;
+}
+
+.meta a:hover {
+  text-decoration: underline;
+}
+
+.bio {
+  margin: 20px 0 0;
+  max-width: 62ch;
+  line-height: 1.75;
+  color: rgba(245, 238, 232, 0.78);
+}
+
+/* ---------- Títulos de sección ---------- */
+
+.seccion-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+h2 {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #a89e8c;
+}
+
+/* ---------- Carrusel ---------- */
+
+.destacadas {
+  margin-bottom: 64px;
+}
+
+.flechas {
+  display: flex;
+  gap: 8px;
+}
+
+.flechas button {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(216, 189, 138, 0.35);
+  background: transparent;
+  color: #f4ebdf;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.flechas button:hover:not(:disabled) {
+  border-color: #d8bd8a;
+}
+
+.flechas button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.tira {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 12px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 220px;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.tira::-webkit-scrollbar {
+  display: none;
+}
+
+.tira li {
+  scroll-snap-align: start;
+}
+
+/* ---------- Grilla ---------- */
+
+.grilla {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 56px 36px;
+}
+
+.vacio,
+.cargando {
+  color: rgba(245, 238, 232, 0.55);
+}
+
+@media (max-width: 640px) {
+  .artista {
+    padding: 36px 18px 64px;
+  }
+
+  .perfil {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .inicial {
+    width: 72px;
+    height: 72px;
+    font-size: 1.8rem;
+  }
+
+  .tira {
+    grid-auto-columns: 62%;
+  }
+
+  .grilla {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 36px 16px;
+  }
+}

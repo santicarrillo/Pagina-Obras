@@ -1,0 +1,140 @@
+:host {
+  display: block;
+}
+
+.footer {
+  border-top: 1px solid rgba(201, 170, 109, 0.18);
+  color: #f4ebdf;
+  padding: 56px 32px 28px;
+}
+
+.footer-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1fr;
+  gap: 48px;
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  font-size: 1.1rem;
+  color: #f4ebdf;
+  text-decoration: none;
+}
+
+.lema {
+  margin: 12px 0 18px;
+  color: rgba(245, 238, 232, 0.55);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.link-vender {
+  color: #d8bd8a;
+  font-size: 0.88rem;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(216, 189, 138, 0.35);
+}
+
+.link-vender:hover {
+  border-bottom-color: currentColor;
+}
+
+h2 {
+  margin: 0 0 16px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #a89e8c;
+}
+
+/* Desplegables de preguntas frecuentes */
+details {
+  border-bottom: 1px solid rgba(245, 238, 232, 0.08);
+}
+
+summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 28px 12px 0;
+  position: relative;
+  font-size: 0.93rem;
+  color: rgba(245, 238, 232, 0.85);
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+summary::after {
+  content: '+';
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #d8bd8a;
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+details[open] summary::after {
+  transform: translateY(-50%) rotate(45deg);
+}
+
+summary:hover {
+  color: #f4ebdf;
+}
+
+summary:focus-visible {
+  outline: 1px solid #d8bd8a;
+  outline-offset: 2px;
+}
+
+details p {
+  margin: 0 0 14px;
+  color: rgba(245, 238, 232, 0.6);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.contacto p {
+  margin: 0 0 12px;
+  color: rgba(245, 238, 232, 0.6);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.mail {
+  color: #d8bd8a;
+  font-size: 0.92rem;
+  text-decoration: none;
+  word-break: break-all;
+  border-bottom: 1px solid rgba(216, 189, 138, 0.35);
+}
+
+.mail:hover {
+  border-bottom-color: currentColor;
+}
+
+.legal {
+  max-width: 1280px;
+  margin: 48px auto 0;
+  color: rgba(245, 238, 232, 0.35);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 860px) {
+  .footer {
+    padding: 44px 18px 24px;
+  }
+
+  .footer-inner {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}

@@ -1,10 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Auth } from './core/services/auth';
+import { Footer } from './shared/footer/footer';
+import { BuscadorArtistas } from './shared/buscador-artistas/buscador-artistas';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Footer, BuscadorArtistas],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

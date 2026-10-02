@@ -1,1 +1,29 @@
-<p>footer works!</p>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="marca">
+      <a routerLink="/" class="logo">Anverso</a>
+      <p class="lema">Obras únicas de artistas independientes.</p>
+      @if (!auth.esArtista()) {
+        <a routerLink="/vender" class="link-vender">¿Sos artista? Vendé tus obras →</a>
+      }
+    </div>
+
+    <section class="ayuda" aria-labelledby="titulo-ayuda">
+      <h2 id="titulo-ayuda">Preguntas frecuentes</h2>
+      @for (item of preguntas; track item.pregunta) {
+        <details>
+          <summary>{{ item.pregunta }}</summary>
+          <p>{{ item.respuesta }}</p>
+        </details>
+      }
+    </section>
+
+    <section class="contacto" aria-labelledby="titulo-contacto">
+      <h2 id="titulo-contacto">Ayuda</h2>
+      <p>¿No encontraste lo que buscabas? Escribinos y te respondemos.</p>
+      <a class="mail" [href]="'mailto:' + email">{{ email }}</a>
+    </section>
+  </div>
+
+  <p class="legal">© {{ anio }} Anverso</p>
+</footer>

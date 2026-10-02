@@ -20,6 +20,11 @@ export const routes: Routes = [
       import('./public/detalle-obra/detalle-obra').then(m => m.DetalleObra)
   },
   {
+    path: 'artista/:id',
+    loadComponent: () =>
+      import('./public/artista/artista').then(m => m.ArtistaPagina)
+  },
+  {
     path: 'login',
     loadComponent: () =>
       import('./public/login/login').then(m => m.Login)

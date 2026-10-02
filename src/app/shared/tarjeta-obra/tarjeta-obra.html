@@ -1,5 +1,5 @@
-<a class="tarjeta" [routerLink]="['/obra', obra().id]">
-  <div class="marco">
+<article class="tarjeta">
+  <a class="marco" [routerLink]="['/obra', obra().id]" [attr.aria-label]="obra().titulo">
     <img [src]="obra().imagenUrl" [alt]="obra().titulo" loading="lazy" />
 
     <!-- Solo en compu: al pasar el mouse -->
@@ -10,11 +10,13 @@
       }
       <span class="ver">Ver obra →</span>
     </div>
-  </div>
+  </a>
 
   <div class="datos">
-    <h3 class="titulo">{{ obra().titulo }}</h3>
-    <p class="artista">{{ obra().artistaNombre }}</p>
+    <a class="titulo" [routerLink]="['/obra', obra().id]">{{ obra().titulo }}</a>
     <p class="precio">{{ precio(obra().precio) }}</p>
+    @if (mostrarArtista()) {
+      <a class="artista" [routerLink]="['/artista', obra().artistId]">{{ obra().artistaNombre }}</a>
+    }
   </div>
-</a>
+</article>

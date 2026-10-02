@@ -18,7 +18,7 @@
   <header class="app-topbar">
     <div class="topbar-inner">
       <button class="brand-button" type="button" (click)="irAlHome()">
-        NICKART
+        Anverso
       </button>
 
       @if (mostrarNavegacion) {
@@ -31,7 +31,7 @@
             <a routerLink="/vender" routerLinkActive="activo">Quiero vender</a>
           }
 
-          <a routerLink="/" fragment="contacto">Contacto</a>
+          <app-buscador-artistas class="topbar-buscador" />
         </nav>
       }
 
@@ -72,5 +72,11 @@
     </div>
   </header>
 
-  <router-outlet></router-outlet>
+  <div class="app-contenido">
+    <router-outlet></router-outlet>
+  </div>
+
+  @if (mostrarNavegacion) {
+    <app-footer />
+  }
 }

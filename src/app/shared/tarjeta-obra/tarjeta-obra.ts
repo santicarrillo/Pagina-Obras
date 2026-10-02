@@ -14,6 +14,8 @@ const PESOS = new Intl.NumberFormat('es-AR', {
 })
 export class TarjetaObra {
   obra = input.required<Obra>();
+  // En la página del artista no hace falta repetir su nombre en cada obra
+  mostrarArtista = input(true);
 
   precio(valor: number) {
     return PESOS.format(valor);

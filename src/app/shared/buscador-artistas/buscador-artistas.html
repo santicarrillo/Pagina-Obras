@@ -1,0 +1,140 @@
+:host {
+  display: block;
+}
+
+/* Línea fina: lupa + texto + subrayado, en el mismo tono que los links del menú */
+.buscador {
+  position: relative;
+  width: 170px;
+}
+
+.lupa {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translateY(-50%);
+  color: rgba(245, 238, 232, 0.5);
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 0 6px 22px;
+  border: 0;
+  border-bottom: 1px solid rgba(245, 238, 232, 0.18);
+  border-radius: 0;
+  background: transparent;
+  color: #f4ebdf;
+  font: inherit;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  outline: none;
+  transition: border-color 0.25s ease;
+}
+
+input::placeholder {
+  color: rgba(245, 238, 232, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.68rem;
+}
+
+input:hover,
+input:focus {
+  border-bottom-color: #c9aa6d;
+}
+
+.buscador:focus-within .lupa {
+  color: #d8bd8a;
+}
+
+/* Saca la cruz que agrega el navegador en los type="search" */
+input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+.resultados {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 280px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: #17140f;
+  border: 1px solid rgba(208, 176, 122, 0.2);
+  border-radius: 10px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  z-index: 40;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.resultados li[role='option'] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.resultados li.activo {
+  background: rgba(216, 189, 138, 0.1);
+}
+
+.inicial {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(216, 189, 138, 0.16);
+  color: #d8bd8a;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nombre {
+  color: #f4ebdf;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ciudad {
+  color: rgba(245, 238, 232, 0.5);
+  font-size: 0.78rem;
+}
+
+.sin-resultados {
+  padding: 10px;
+  color: rgba(245, 238, 232, 0.55);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 720px) {
+  .buscador {
+    width: 100%;
+  }
+
+  .resultados {
+    left: auto;
+    right: 0;
+    transform: none;
+    width: min(280px, 90vw);
+  }
+}

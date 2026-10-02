@@ -4,11 +4,17 @@ body {
 }
 
 :host {
-    display: block;
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
     background: #100e0a;
     color: #f5efe8;
     font-family: 'Segoe UI', sans-serif;
+}
+
+/* El contenido ocupa el alto disponible, así el footer queda siempre abajo */
+.app-contenido {
+    flex: 1;
 }
 
 /* ---------- Barra superior ---------- */
@@ -330,6 +336,16 @@ body {
 
     .topbar-right {
         grid-column: 2;
+    }
+
+    /* En el celu los links y el buscador comparten la segunda fila */
+    .topbar-nav {
+        justify-content: space-between;
+    }
+
+    .topbar-buscador {
+        flex: 1;
+        max-width: 200px;
     }
 
     .user-name {

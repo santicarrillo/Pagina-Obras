@@ -1,0 +1,61 @@
+@if (artista(); as a) {
+  <section class="artista">
+    <header class="perfil">
+      <span class="inicial" aria-hidden="true">{{ inicial(a.nombreArtistico) }}</span>
+      <div class="perfil-datos">
+        <p class="eyebrow">Artista</p>
+        <h1>{{ a.nombreArtistico }}</h1>
+        <p class="meta">
+          @if (a.ciudad) {
+            <span>{{ a.ciudad }}</span>
+          }
+          @if (a.instagram) {
+            <a [href]="'https://instagram.com/' + a.instagram" target="_blank" rel="noopener noreferrer">
+              &#64;{{ a.instagram }}
+            </a>
+          }
+          <span>{{ obras().length }} {{ obras().length === 1 ? 'obra' : 'obras' }} a la venta</span>
+        </p>
+        @if (a.bio) {
+          <p class="bio">{{ a.bio }}</p>
+        }
+      </div>
+    </header>
+
+    @if (carrusel().length) {
+      <section class="destacadas" aria-label="Obras principales">
+        <div class="seccion-titulo">
+          <h2>Obras principales</h2>
+          <div class="flechas">
+            <button type="button" (click)="mover(-1)" [disabled]="!puedeIzq()" aria-label="Anteriores">←</button>
+            <button type="button" (click)="mover(1)" [disabled]="!puedeDer()" aria-label="Siguientes">→</button>
+          </div>
+        </div>
+        <ul class="tira" #tira (scroll)="actualizarFlechas()">
+          @for (obra of carrusel(); track obra.id) {
+            <li><app-tarjeta-obra [obra]="obra" [mostrarArtista]="false" /></li>
+          }
+        </ul>
+      </section>
+    }
+
+    <section class="todas" aria-label="Todas las obras">
+      <div class="seccion-titulo">
+        <h2>{{ carrusel().length ? 'Todas sus obras' : 'Obras' }}</h2>
+      </div>
+      @if (obras().length) {
+        <ul class="grilla">
+          @for (obra of obras(); track obra.id) {
+            <li><app-tarjeta-obra [obra]="obra" [mostrarArtista]="false" /></li>
+          }
+        </ul>
+      } @else {
+        <p class="vacio">Este artista todavía no tiene obras a la venta.</p>
+      }
+    </section>
+  </section>
+} @else if (error()) {
+  <section class="artista"><p class="aviso-error" role="alert">{{ error() }}</p></section>
+} @else {
+  <section class="artista"><p class="cargando">Cargando artista...</p></section>
+}
