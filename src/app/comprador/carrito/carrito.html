@@ -1,0 +1,67 @@
+<section class="carrito">
+  <header class="encabezado">
+    <h1>Tu carrito</h1>
+    @if (carrito.cantidad()) {
+      <p class="resumen-cant">{{ carrito.cantidad() }} {{ carrito.cantidad() === 1 ? 'obra' : 'obras' }}</p>
+    }
+  </header>
+
+  @for (aviso of carrito.avisos(); track aviso) {
+    <p class="aviso" role="status">{{ aviso }}</p>
+  }
+
+  @if (carrito.cantidad() === 0) {
+    <div class="vacio">
+      <h2>Tu carrito está vacío</h2>
+      <p>Cuando encuentres una obra que te guste, agregala desde su página.</p>
+      <a routerLink="/" class="btn-primario">Ver la galería</a>
+    </div>
+  } @else {
+    <div class="layout">
+      <ul class="lista">
+        @for (item of carrito.items(); track item.id) {
+          <li class="item">
+            <a class="miniatura" [routerLink]="['/obra', item.id]">
+              <img [src]="item.imagenUrl" [alt]="item.titulo" />
+            </a>
+            <div class="item-datos">
+              <a class="titulo" [routerLink]="['/obra', item.id]">{{ item.titulo }}</a>
+              <a class="artista" [routerLink]="['/artista', item.artistId]">{{ item.artistaNombre }}</a>
+              <button type="button" class="quitar" (click)="quitar(item)">Quitar</button>
+            </div>
+            <p class="item-precio">{{ precio(item.precio) }}</p>
+          </li>
+        }
+      </ul>
+
+      <aside class="resumen" aria-label="Resumen de la compra">
+        <div class="fila">
+          <span>Subtotal</span>
+          <span>{{ precio(carrito.total()) }}</span>
+        </div>
+        <div class="fila nota">
+          <span>Envío</span>
+          <span>Lo coordina cada artista</span>
+        </div>
+        <div class="fila total">
+          <span>Total</span>
+          <strong>{{ precio(carrito.total()) }}</strong>
+        </div>
+
+        <button type="button" class="btn-primario pagar" (click)="pagar()" [disabled]="revisando()">
+          {{ revisando() ? 'Revisando disponibilidad...' : 'Pagar con Mercado Pago' }}
+        </button>
+
+        @if (avisoPago()) {
+          <p class="aviso-pago" role="status">El pago con Mercado Pago llega muy pronto. Tu carrito queda guardado.</p>
+        }
+
+        @if (artistas() > 1) {
+          <p class="nota-artistas">Tu compra incluye obras de {{ artistas() }} artistas. Cada uno te envía la suya.</p>
+        }
+
+        <a routerLink="/" class="seguir">← Seguir mirando</a>
+      </aside>
+    </div>
+  }
+</section>

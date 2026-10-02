@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Auth } from '../../core/services/auth';
 import { Artworks, Obra } from '../../core/services/artworks';
 import { OBRAS_DEMO } from '../../core/data/obras-demo';
+import { Carrito } from '../../core/services/carrito';
 
 const PESOS = new Intl.NumberFormat('es-AR', {
   style: 'currency', currency: 'ARS', maximumFractionDigits: 0
@@ -19,10 +20,10 @@ export class DetalleObra {
   private router = inject(Router);
   private auth = inject(Auth);
   private artworks = inject(Artworks);
+  carrito = inject(Carrito);
 
   obra = signal<Obra | null>(null);
   error = signal('');
-  avisoCompra = signal(false);
   borrando = signal(false);
   errorEliminar = signal('');
 
@@ -33,7 +34,6 @@ export class DetalleObra {
   private async cargar(id: string) {
     this.obra.set(null);
     this.error.set('');
-    this.avisoCompra.set(false);
 
     const demo = OBRAS_DEMO.find(o => o.id === id);
     if (demo) {
@@ -62,14 +62,9 @@ export class DetalleObra {
     return this.obra()?.artistId === this.auth.usuario()?.uid;
   }
 
-  comprar() {
-    if (!this.auth.estaLogueado()) {
-      // Al volver del login, lo traemos de nuevo a esta obra
-      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
-      return;
-    }
-    // Hasta que esté Mercado Pago
-    this.avisoCompra.set(true);
+  agregarAlCarrito() {
+    const o = this.obra();
+    if (o) this.carrito.agregar(o);
   }
 
   async eliminar() {

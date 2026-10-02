@@ -228,3 +228,14 @@
 .artista a:hover {
   border-bottom-color: currentColor;
 }
+
+.en-carrito {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.en-carrito .estado-obra {
+  color: #9fc28a;
+}

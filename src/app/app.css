@@ -116,6 +116,47 @@ body {
 .topbar-right {
     grid-column: 3;
     justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+/* ---------- Carrito ---------- */
+
+.carrito-link {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    color: rgba(245, 238, 232, 0.7);
+    transition: color 0.2s ease;
+}
+
+.carrito-link:hover {
+    color: #d8bd8a;
+}
+
+.carrito-link svg {
+    width: 22px;
+    height: 22px;
+}
+
+.carrito-cant {
+    position: absolute;
+    top: 0;
+    right: -2px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: #c9aa6d;
+    color: #100e0a;
+    font-size: 0.66rem;
+    font-weight: 700;
+    line-height: 17px;
+    text-align: center;
 }
 
 .user-menu-wrap {

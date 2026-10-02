@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Auth } from './core/services/auth';
+import { Carrito } from './core/services/carrito';
 import { Footer } from './shared/footer/footer';
 import { BuscadorArtistas } from './shared/buscador-artistas/buscador-artistas';
 
@@ -13,6 +14,7 @@ import { BuscadorArtistas } from './shared/buscador-artistas/buscador-artistas';
 export class App {
   protected readonly title = signal('PaginaParaComprasDeObras');
   private router = inject(Router);
+  carrito = inject(Carrito);
   menuAbierto = signal(false);
 
   constructor(public auth: Auth) {}

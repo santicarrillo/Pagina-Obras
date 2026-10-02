@@ -24,6 +24,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./public/artista/artista').then(m => m.ArtistaPagina)
   },
+  // El carrito se puede armar sin cuenta; el login se pide recién al pagar
+  {
+    path: 'carrito',
+    loadComponent: () =>
+      import('./comprador/carrito/carrito').then(m => m.CarritoPagina)
+  },
   {
     path: 'login',
     loadComponent: () =>

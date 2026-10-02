@@ -36,6 +36,18 @@
       }
 
       <div class="topbar-right">
+        @if (mostrarNavegacion) {
+          <a routerLink="/carrito" class="carrito-link"
+             [attr.aria-label]="'Carrito, ' + carrito.cantidad() + ' obras'">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 8h14l-1.2 11.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8L5 8z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+              <path d="M9 8V6.5a3 3 0 0 1 6 0V8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+            @if (carrito.cantidad()) {
+              <span class="carrito-cant">{{ carrito.cantidad() }}</span>
+            }
+          </a>
+        }
         @if (auth.estaLogueado()) {
           <div class="user-menu-wrap">
             <button class="user-button" type="button" (click)="alternarMenu()" aria-label="Abrir menú de usuario">

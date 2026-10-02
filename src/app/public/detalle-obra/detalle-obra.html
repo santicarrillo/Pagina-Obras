@@ -52,9 +52,13 @@
             <p class="aviso-error" role="alert">{{ errorEliminar() }}</p>
           }
         } @else {
-          <button class="cta-button" type="button" (click)="comprar()">Comprar</button>
-          @if (avisoCompra()) {
-            <p class="estado-obra" role="status">El pago con Mercado Pago llega muy pronto.</p>
+          @if (carrito.tiene(o.id)) {
+            <div class="en-carrito">
+              <p class="estado-obra">✓ Está en tu carrito</p>
+              <a routerLink="/carrito" class="cta-button">Ver carrito</a>
+            </div>
+          } @else {
+            <button class="cta-button" type="button" (click)="agregarAlCarrito()">Agregar al carrito</button>
           }
         }
       </article>
