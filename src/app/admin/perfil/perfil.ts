@@ -57,7 +57,7 @@ export class Perfil {
 
     this.guardando.set(true);
     try {
-      await this.auth.activarPerfilArtista({
+     await this.auth.actualizarPerfilArtista({
         nombreArtistico: this.nombreArtistico.trim(),
         ciudad: this.ciudad.trim(),
         bio: this.bio.trim(),

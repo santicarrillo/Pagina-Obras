@@ -57,9 +57,15 @@ service cloud.firestore {
         && perfilValido()
         && request.resource.data.creadoEn == request.time;
 
+      // Al editar solo se pueden tocar estos 4 campos. No se exige que el resto del
+      // documento tenga un formato exacto, así perfiles viejos también se pueden editar.
       allow update: if esDueno(uid)
-        && perfilValido()
-        && request.resource.data.creadoEn == resource.data.creadoEn;
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['nombreArtistico', 'ciudad', 'bio', 'instagram'])
+        && textoEntre(request.resource.data.nombreArtistico, 2, 60)
+        && textoEntre(request.resource.data.ciudad, 0, 60)
+        && textoEntre(request.resource.data.bio, 20, 600)
+        && textoEntre(request.resource.data.instagram, 0, 40);
 
       allow delete: if false;
     }
