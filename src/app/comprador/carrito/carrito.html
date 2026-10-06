@@ -77,9 +77,15 @@
           @if (revisando()) {
             <button type="button" class="btn-primario pagar" disabled>Revisando disponibilidad...</button>
           } @else if (habilitados()[grupo.artistId]) {
-            <button type="button" class="btn-primario pagar" (click)="pagar(grupo)" [disabled]="pagando() !== null">
+            <button type="button" class="btn-primario pagar" (click)="pagar(grupo)"
+              [disabled]="pagando() !== null || !datosValidos">
               {{ pagando() === grupo.artistId ? 'Yendo a Mercado Pago...' : 'Pagar con Mercado Pago' }}
             </button>
+            @if (!datosValidos) {
+              <a class="falta-envio" href="#datos-envio" (click)="$event.preventDefault(); irADatos()">
+                Completá tus datos de envío para poder pagar ↓
+              </a>
+            }
           } @else {
             <p class="no-habilitado">
               {{ grupo.artistaNombre }} todavía no habilitó los pagos. Podés dejar la obra en tu carrito y volver más adelante.

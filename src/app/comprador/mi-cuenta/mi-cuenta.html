@@ -1,0 +1,58 @@
+<section class="cuenta">
+  <h1>Mi cuenta</h1>
+
+  <dl class="datos">
+    <div>
+      <dt>Mail</dt>
+      <dd>{{ auth.usuario()?.email }}</dd>
+    </div>
+    <div>
+      <dt>Tipo de cuenta</dt>
+      <dd>
+        @if (auth.esArtista()) {
+          Artista · <a routerLink="/admin/perfil">Editar perfil de artista</a>
+        } @else {
+          Comprador · <a routerLink="/vender">Quiero vender</a>
+        }
+      </dd>
+    </div>
+  </dl>
+
+  <nav class="atajos" aria-label="Accesos">
+    <a routerLink="/mis-pedidos">Mis pedidos →</a>
+    @if (auth.esArtista()) {
+      <a routerLink="/admin/obras">Mis obras →</a>
+      <a routerLink="/admin/pagos">Mis ventas →</a>
+    }
+  </nav>
+
+  <section class="zona-baja" aria-labelledby="titulo-eliminar">
+    <h2 id="titulo-eliminar">Eliminar mi cuenta</h2>
+    <p>
+      Se borran tus datos y ya no vas a poder entrar con este mail. Si sos artista, tus obras salen de la galería
+      y se desconecta tu Mercado Pago. Tus compras y ventas anteriores quedan registradas, porque la otra persona las necesita.
+    </p>
+
+    @if (!confirmando()) {
+      <button type="button" class="btn-baja" (click)="confirmando.set(true)">Eliminar mi cuenta</button>
+    } @else {
+      <div class="confirmar">
+        <label for="confirmar-texto">Para confirmar, escribí <strong>{{ PALABRA }}</strong>:</label>
+        <input id="confirmar-texto" autocomplete="off" [value]="textoConfirmacion()"
+          (input)="textoConfirmacion.set($any($event.target).value)" [disabled]="eliminando()" />
+        @if (error()) {
+          <p class="aviso-error" role="alert">{{ error() }}</p>
+        }
+        <div class="botones">
+          <button type="button" class="btn-baja peligro" (click)="eliminar()"
+            [disabled]="eliminando() || textoConfirmacion().trim().toUpperCase() !== PALABRA">
+            {{ eliminando() ? 'Eliminando...' : 'Eliminar definitivamente' }}
+          </button>
+          <button type="button" class="btn-cancelar" (click)="confirmando.set(false); textoConfirmacion.set('')" [disabled]="eliminando()">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+</section>

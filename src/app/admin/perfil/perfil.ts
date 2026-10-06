@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../core/services/auth';
@@ -10,7 +10,7 @@ import { Pagos, mensajeDeError } from '../../core/services/mercadopago';
   templateUrl: './perfil.html',
   styleUrl: './perfil.css',
 })
-export class Perfil {
+export class Perfil implements OnInit {
   private auth = inject(Auth);
   private pagos = inject(Pagos);
   private router = inject(Router);
@@ -26,8 +26,20 @@ export class Perfil {
   ciudad = this.actual?.ciudad ?? '';
   bio = this.actual?.bio ?? '';
   instagram = this.actual?.instagram ?? '';
+  telefono = '';
+  codigoPostal = '';
 
   readonly MAX_BIO = 600;
+
+  async ngOnInit() {
+    try {
+      const c = await this.auth.leerContacto();
+      this.telefono = c.telefono;
+      this.codigoPostal = c.codigoPostal;
+    } catch {
+      // Si no se puede leer, quedan vacíos y se completan al guardar
+    }
+  }
 
   intentoEnviar = signal(false);
   guardando = signal(false);
@@ -49,15 +61,27 @@ export class Perfil {
     this.guardado.set(false);
   }
 
+  get telefonoValido() {
+    return /^[\d\s()+-]{6,20}$/.test(this.telefono.trim());
+  }
+
+  get codigoPostalValido() {
+    return /^[A-Za-z0-9]{4,8}$/.test(this.codigoPostal.trim());
+  }
+
   async guardar() {
     this.intentoEnviar.set(true);
     this.error.set('');
     this.guardado.set(false);
-    if (!this.nombreValido || !this.bioValida) return;
+    if (!this.nombreValido || !this.bioValida || !this.telefonoValido || !this.codigoPostalValido) return;
 
     this.guardando.set(true);
     try {
-     await this.auth.actualizarPerfilArtista({
+      await this.auth.guardarContacto({
+        telefono: this.telefono.trim(),
+        codigoPostal: this.codigoPostal.trim().toUpperCase()
+      });
+      await this.auth.actualizarPerfilArtista({
         nombreArtistico: this.nombreArtistico.trim(),
         ciudad: this.ciudad.trim(),
         bio: this.bio.trim(),

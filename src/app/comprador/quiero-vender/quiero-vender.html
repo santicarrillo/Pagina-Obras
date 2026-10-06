@@ -39,6 +39,27 @@
       <input id="instagram" name="instagram" [(ngModel)]="instagram" maxlength="40" placeholder="@tuusuario" />
     </div>
 
+    <div class="fila-campos">
+      <div class="campo" [class.con-error]="intentoEnviar() && !telefonoValido">
+        <label for="telefono">Teléfono</label>
+        <input id="telefono" name="telefono" type="tel" [(ngModel)]="telefono" maxlength="20" autocomplete="tel" placeholder="11 2345 6789" />
+        @if (intentoEnviar() && !telefonoValido) {
+          <span class="error">Poné un teléfono válido.</span>
+        } @else {
+          <span class="ayuda">Privado. Solo lo ve quien te compra, para coordinar el envío.</span>
+        }
+      </div>
+      <div class="campo" [class.con-error]="intentoEnviar() && !codigoPostalValido">
+        <label for="codigoPostal">Código postal</label>
+        <input id="codigoPostal" name="codigoPostal" [(ngModel)]="codigoPostal" maxlength="8" autocomplete="postal-code" />
+        @if (intentoEnviar() && !codigoPostalValido) {
+          <span class="error">Revisá el código postal.</span>
+        } @else {
+          <span class="ayuda">Desde donde despachás tus obras. Privado.</span>
+        }
+      </div>
+    </div>
+
     @if (error()) {
       <p class="aviso-error" role="alert">{{ error() }}</p>
     }

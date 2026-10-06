@@ -155,3 +155,75 @@ h1 {
   font-size: 0.85rem;
   color: rgba(245, 238, 232, 0.5);
 }
+
+.pendientes {
+  color: #d8bd8a;
+}
+
+app-pasos-envio {
+  margin: 4px 0 18px;
+}
+
+.despachar {
+  margin-top: 14px;
+}
+
+.despachar-campos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.despachar select,
+.despachar input {
+  min-width: 160px;
+  padding: 9px 12px;
+  border: 1px solid rgba(201, 170, 109, 0.3);
+  background: #17140f;
+  color: #f4ebdf;
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.despachar input {
+  flex: 1;
+}
+
+.despachar select:focus,
+.despachar input:focus {
+  outline: none;
+  border-color: #d8bd8a;
+}
+
+.btn-accion {
+  padding: 10px 18px;
+  border: 1px solid #d8bd8a;
+  background: #d8bd8a;
+  color: #100e0a;
+  font: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.btn-accion.secundario {
+  background: transparent;
+  color: #d8bd8a;
+}
+
+.btn-accion:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.btn-accion:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.despachar .ayuda {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: rgba(245, 238, 232, 0.45);
+}

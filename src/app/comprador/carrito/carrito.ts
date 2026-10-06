@@ -112,6 +112,12 @@ export class CarritoPagina implements OnInit {
     return !Object.values(this.errores).some(Boolean) && this.datos.notas.length <= 200;
   }
 
+  irADatos() {
+    this.intentoPagar.set(true);
+    document.getElementById('datos-envio')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => document.getElementById('env-nombre')?.focus({ preventScroll: true }), 400);
+  }
+
   async pagar(grupo: GrupoArtista) {
     this.error.set('');
     if (!this.auth.estaLogueado()) {

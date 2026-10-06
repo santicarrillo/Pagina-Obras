@@ -6,6 +6,9 @@
     <p class="resumen">
       {{ ventas().length }} {{ ventas().length === 1 ? 'venta' : 'ventas' }} ·
       <strong>{{ precio(totalVendido()) }}</strong> cobrados en tu Mercado Pago
+      @if (pendientes()) {
+        · <span class="pendientes">{{ pendientes() }} por despachar</span>
+      }
     </p>
   }
 
@@ -28,6 +31,8 @@
             <p class="fecha">{{ fecha(v.pagadoEn ?? v.creadoEn) }}</p>
             <strong class="total">{{ precio(v.total) }}</strong>
           </header>
+
+          <app-pasos-envio [pedido]="v" />
 
           <ul class="items">
             @for (item of v.items; track item.id) {
@@ -71,6 +76,37 @@
             </div>
           } @else {
             <p class="ayuda-suelta">Escribile al comprador para coordinar el envío o la entrega.</p>
+          }
+
+          @if (v.envioEstado === 'preparando') {
+            <form class="despachar" (submit)="$event.preventDefault(); marcarEnviado(v)">
+              <span class="etiqueta">¿Ya la despachaste?</span>
+              <div class="despachar-campos">
+                <select [name]="'empresa-' + v.id" [(ngModel)]="form[v.id].empresa" aria-label="Empresa de envío">
+                  <option value="" disabled>Empresa</option>
+                  @for (e of empresas; track e[0]) {
+                    <option [value]="e[0]">{{ e[1].nombre }}</option>
+                  }
+                </select>
+                @if (form[v.id].empresa !== 'mano') {
+                  <input [name]="'codigo-' + v.id" [(ngModel)]="form[v.id].codigo" maxlength="60"
+                    placeholder="Código de seguimiento" aria-label="Código de seguimiento" />
+                }
+                <button type="submit" class="btn-accion" [disabled]="guardandoEnvio() === v.id">
+                  {{ guardandoEnvio() === v.id ? 'Guardando...' : 'Marcar como enviada' }}
+                </button>
+              </div>
+              <p class="ayuda">Al marcarla, le mandamos un mail al comprador con el código para seguirla.</p>
+            </form>
+          } @else if (v.envioEstado === 'enviado') {
+            <div class="despachar">
+              <button type="button" class="btn-accion secundario" (click)="marcarEntregado(v)" [disabled]="guardandoEnvio() === v.id">
+                {{ guardandoEnvio() === v.id ? 'Guardando...' : 'Marcar como entregada' }}
+              </button>
+            </div>
+          }
+          @if (errorEnvio()[v.id]) {
+            <p class="aviso-error" role="alert">{{ errorEnvio()[v.id] }}</p>
           }
         </li>
       }

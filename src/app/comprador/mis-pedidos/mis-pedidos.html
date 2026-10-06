@@ -4,6 +4,9 @@
   @if (aviso()) {
     <p class="aviso-ok" role="status">{{ aviso() }}</p>
   }
+  @if (errorEntrega()) {
+    <p class="aviso-error" role="alert">{{ errorEntrega() }}</p>
+  }
   @if (error()) {
     <p class="aviso-error" role="alert">{{ error() }}</p>
   }
@@ -31,6 +34,10 @@
             <strong class="total">{{ precio(p.total) }}</strong>
           </header>
 
+          @if (p.estado === 'pagado') {
+            <app-pasos-envio [pedido]="p" />
+          }
+
           <ul class="items">
             @for (item of p.items; track item.id) {
               <li class="item">
@@ -56,6 +63,26 @@
               · a {{ e.direccion }}, {{ e.ciudad }}
             }
           </p>
+
+          @if (p.estado === 'pagado') {
+            <div class="pie-pedido">
+              @if (p.artistaContacto; as c) {
+                @if (c.email || c.telefono) {
+                  <p class="contacto">
+                    ¿Dudas sobre el envío? Escribile a {{ p.artistaNombre }}:
+                    @if (c.email) { <a [href]="'mailto:' + c.email">{{ c.email }}</a> }
+                    @if (c.email && c.telefono) { · }
+                    @if (c.telefono) { <a [href]="'tel:' + c.telefono">{{ c.telefono }}</a> }
+                  </p>
+                }
+              }
+              @if (p.envioEstado === 'enviado') {
+                <button type="button" class="btn-recibido" (click)="confirmarRecibido(p)" [disabled]="confirmando() === p.id">
+                  {{ confirmando() === p.id ? 'Guardando...' : 'Ya la recibí' }}
+                </button>
+              }
+            </div>
+          }
         </li>
       }
     </ul>

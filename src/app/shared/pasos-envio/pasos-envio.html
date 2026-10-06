@@ -1,0 +1,23 @@
+<ol class="pasos" aria-label="Estado del pedido">
+  @for (paso of pasos(); track paso.titulo) {
+    <li [class.hecho]="paso.hecho" [class.actual]="paso.actual" [attr.aria-current]="paso.actual ? 'step' : null">
+      <span class="punto" aria-hidden="true">@if (paso.hecho) { ✓ }</span>
+      <span class="titulo">{{ paso.titulo }}</span>
+      @if (paso.detalle && paso.hecho) {
+        <span class="detalle">{{ paso.detalle }}</span>
+      }
+    </li>
+  }
+</ol>
+
+@if (pedido().seguimiento; as s) {
+  @if (s.codigo) {
+    <div class="seguimiento">
+      <span class="etiqueta">{{ empresa()?.nombre }}</span>
+      <code>{{ s.codigo }}</code>
+      @if (empresa()?.url; as url) {
+        <a [href]="url" target="_blank" rel="noopener noreferrer">Seguir el envío ↗</a>
+      }
+    </div>
+  }
+}

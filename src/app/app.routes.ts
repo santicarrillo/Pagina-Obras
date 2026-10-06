@@ -49,6 +49,12 @@ export const routes: Routes = [
       import('./comprador/checkout/checkout').then(m => m.Checkout)
   },
   {
+    path: 'cuenta',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./comprador/mi-cuenta/mi-cuenta').then(m => m.MiCuenta)
+  },
+  {
     path: 'mis-pedidos',
     canActivate: [authGuard],
     loadComponent: () =>

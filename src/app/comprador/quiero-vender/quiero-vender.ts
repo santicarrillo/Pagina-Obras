@@ -17,6 +17,8 @@ export class QuieroVender {
   ciudad = '';
   bio = '';
   instagram = '';
+  telefono = '';
+  codigoPostal = '';
 
   intentoEnviar = signal(false);
   guardando = signal(false);
@@ -34,13 +36,25 @@ export class QuieroVender {
     return largo >= 20 && largo <= this.MAX_BIO;
   }
 
+  get telefonoValido() {
+    return /^[\d\s()+-]{6,20}$/.test(this.telefono.trim());
+  }
+
+  get codigoPostalValido() {
+    return /^[A-Za-z0-9]{4,8}$/.test(this.codigoPostal.trim());
+  }
+
   async activar() {
     this.intentoEnviar.set(true);
     this.error.set('');
-    if (!this.nombreValido || !this.bioValida) return;
+    if (!this.nombreValido || !this.bioValida || !this.telefonoValido || !this.codigoPostalValido) return;
 
     this.guardando.set(true);
     try {
+      await this.auth.guardarContacto({
+        telefono: this.telefono.trim(),
+        codigoPostal: this.codigoPostal.trim().toUpperCase()
+      });
       await this.auth.activarPerfilArtista({
         nombreArtistico: this.nombreArtistico.trim(),
         ciudad: this.ciudad.trim(),

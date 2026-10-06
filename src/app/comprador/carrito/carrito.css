@@ -319,3 +319,21 @@ h1 {
     padding: 22px 18px;
   }
 }
+
+.falta-envio {
+  display: block;
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: #d8bd8a;
+  text-decoration: none;
+}
+
+.falta-envio:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.pagar:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

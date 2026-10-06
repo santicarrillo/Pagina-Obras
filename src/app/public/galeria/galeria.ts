@@ -19,9 +19,10 @@ export class Galeria implements OnInit {
   cargando = signal(true);
   error = signal('');
   aviso = signal(
-    inject(ActivatedRoute).snapshot.queryParamMap.get('baja') === 'artista'
-      ? 'Listo, ya no sos artista. Tus obras quedaron pausadas y podés volver a activar tu perfil cuando quieras desde "Quiero vender".'
-      : ''
+    ({
+      artista: 'Listo, ya no sos artista. Tus obras quedaron pausadas y podés volver a activar tu perfil cuando quieras desde "Quiero vender".',
+      cuenta: 'Tu cuenta fue eliminada. Gracias por haber sido parte de Anverso.'
+    } as Record<string, string>)[inject(ActivatedRoute).snapshot.queryParamMap.get('baja') ?? ''] ?? ''
   );
 
   async ngOnInit() {

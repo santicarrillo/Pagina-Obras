@@ -137,6 +137,33 @@ export class Auth {
     this.perfilPromise = Promise.resolve({ rol: 'comprador', artista: datos });
   }
 
+  // Datos privados del artista (no se muestran en su página pública).
+  // El teléfono se le pasa solo a quien le compra, para coordinar el envío.
+  async leerContacto(): Promise<{ telefono: string; codigoPostal: string }> {
+    const user = this.usuario();
+    if (!user) return { telefono: '', codigoPostal: '' };
+    const snap = await getDoc(doc(this.db, 'users', user.uid));
+    const d = snap.data() ?? {};
+    return { telefono: d['telefono'] ?? '', codigoPostal: d['codigoPostal'] ?? '' };
+  }
+
+  async guardarContacto(datos: { telefono: string; codigoPostal: string }) {
+    const user = this.usuario();
+    if (!user) throw new Error('Tenés que iniciar sesión');
+    await updateDoc(doc(this.db, 'users', user.uid), {
+      telefono: datos.telefono,
+      codigoPostal: datos.codigoPostal
+    });
+  }
+
+  // Borra la cuenta entera. El servidor pausa sus obras, borra sus datos y el acceso.
+  async eliminarCuenta() {
+    const fn = httpsCallable(getFunctions(firebaseApp, 'southamerica-east1'), 'eliminarCuenta');
+    await fn();
+    this.perfilArtista.set(null);
+    await this.salir().catch(() => {});
+  }
+
   // Vuelve a ser solo comprador. El servidor pausa sus obras, borra el perfil de artista
   // y desconecta Mercado Pago. Sus ventas y compras quedan como están.
   async dejarDeSerArtista(): Promise<number> {
