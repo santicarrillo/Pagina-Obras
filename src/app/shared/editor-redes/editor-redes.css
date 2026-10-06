@@ -1,0 +1,107 @@
+:host {
+  display: block;
+}
+
+.redes {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+legend {
+  margin-bottom: 8px;
+  padding: 0;
+  color: #d8bd8a;
+  font-size: 0.85rem;
+}
+
+.opcional {
+  color: rgba(245, 238, 232, 0.4);
+  font-size: 0.8rem;
+  margin-left: 6px;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: 140px 1fr 32px;
+  gap: 10px;
+  align-items: center;
+}
+
+select,
+input {
+  min-width: 0;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(201, 170, 109, 0.3);
+  background: transparent;
+  color: #f4ebdf;
+  font: inherit;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+select option {
+  background: #17140f;
+  color: #f4ebdf;
+}
+
+select:focus,
+input:focus {
+  border-bottom-color: #d8bd8a;
+}
+
+.con-error input {
+  border-bottom-color: #e3a08f;
+}
+
+.quitar {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: rgba(245, 238, 232, 0.45);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.quitar:hover {
+  color: #e3a08f;
+  background: rgba(227, 160, 143, 0.08);
+}
+
+.agregar {
+  align-self: flex-start;
+  padding: 8px 14px;
+  border: 1px dashed rgba(216, 189, 138, 0.5);
+  background: transparent;
+  color: #d8bd8a;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.agregar:hover {
+  border-style: solid;
+  background: rgba(216, 189, 138, 0.06);
+}
+
+.error {
+  color: #e3a08f;
+  font-size: 0.8rem;
+}
+
+.ayuda {
+  color: rgba(245, 238, 232, 0.45);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 480px) {
+  .fila {
+    grid-template-columns: 110px 1fr 32px;
+  }
+}

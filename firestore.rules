@@ -40,13 +40,19 @@ service cloud.firestore {
     // ---------- Perfil de artista (cualquiera se puede dar de alta) ----------
 
     match /artists/{uid} {
+      // Instagram es el campo viejo; ahora hay una lista de hasta 5 redes
+      function redesValidas(d) {
+        return (!('instagram' in d) || textoEntre(d.instagram, 0, 40))
+          && (!('redes' in d) || (d.redes is list && d.redes.size() <= 5));
+      }
+
       function perfilValido() {
         let d = request.resource.data;
-        return d.keys().hasOnly(['nombreArtistico', 'ciudad', 'bio', 'instagram', 'creadoEn'])
+        return d.keys().hasOnly(['nombreArtistico', 'ciudad', 'bio', 'instagram', 'redes', 'creadoEn'])
           && textoEntre(d.nombreArtistico, 2, 60)
           && textoEntre(d.ciudad, 0, 60)
           && textoEntre(d.bio, 20, 600)
-          && textoEntre(d.instagram, 0, 40);
+          && redesValidas(d);
       }
 
       // Es público: la galería muestra quién hizo cada obra
@@ -57,15 +63,15 @@ service cloud.firestore {
         && perfilValido()
         && request.resource.data.creadoEn == request.time;
 
-      // Al editar solo se pueden tocar estos 4 campos. No se exige que el resto del
+      // Al editar solo se pueden tocar estos campos. No se exige que el resto del
       // documento tenga un formato exacto, así perfiles viejos también se pueden editar.
       allow update: if esDueno(uid)
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['nombreArtistico', 'ciudad', 'bio', 'instagram'])
+             .hasOnly(['nombreArtistico', 'ciudad', 'bio', 'instagram', 'redes'])
         && textoEntre(request.resource.data.nombreArtistico, 2, 60)
         && textoEntre(request.resource.data.ciudad, 0, 60)
         && textoEntre(request.resource.data.bio, 20, 600)
-        && textoEntre(request.resource.data.instagram, 0, 40);
+        && redesValidas(request.resource.data);
 
       allow delete: if false;
     }

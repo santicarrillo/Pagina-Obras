@@ -9,15 +9,22 @@
           @if (a.ciudad) {
             <span>{{ a.ciudad }}</span>
           }
-          @if (a.instagram) {
-            <a [href]="'https://instagram.com/' + a.instagram" target="_blank" rel="noopener noreferrer">
-              &#64;{{ a.instagram }}
-            </a>
-          }
           <span>{{ obras().length }} {{ obras().length === 1 ? 'obra' : 'obras' }} a la venta</span>
         </p>
         @if (a.bio) {
           <p class="bio">{{ a.bio }}</p>
+        }
+        @if (a.redes.length) {
+          <ul class="redes" aria-label="Redes de {{ a.nombreArtistico }}">
+            @for (r of a.redes; track r.url) {
+              <li>
+                <a [href]="r.url" target="_blank" rel="noopener noreferrer nofollow">
+                  <span class="red-tipo">{{ nombreRed(r.tipo) }}</span>
+                  <span class="red-texto">{{ textoRed(r) }}</span>
+                </a>
+              </li>
+            }
+          </ul>
         }
       </div>
     </header>

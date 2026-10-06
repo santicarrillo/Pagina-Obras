@@ -35,8 +35,7 @@
     </div>
 
     <div class="campo">
-      <label for="instagram">Instagram <span class="opcional">opcional</span></label>
-      <input id="instagram" name="instagram" [(ngModel)]="instagram" maxlength="40" placeholder="@tuusuario" />
+      <app-editor-redes [inicial]="redes" [mostrarErrores]="intentoEnviar()" (cambio)="cambioRedes($event)" />
     </div>
 
     <div class="fila-campos">

@@ -1,0 +1,25 @@
+<fieldset class="redes">
+  <legend>Redes y sitio web <span class="opcional">opcional · hasta {{ MAX }}</span></legend>
+
+  @for (f of filas(); track $index; let i = $index) {
+    <div class="fila" [class.con-error]="mostrarErrores() && f.valor.trim() && invalida(f)">
+      <select [name]="'red-tipo-' + i" [(ngModel)]="f.tipo" (ngModelChange)="avisar()" aria-label="Red social">
+        @for (t of tipos; track t.tipo) {
+          <option [value]="t.tipo">{{ t.nombre }}</option>
+        }
+      </select>
+      <input [name]="'red-valor-' + i" [(ngModel)]="f.valor" (ngModelChange)="avisar()" maxlength="200"
+        [placeholder]="ejemplo(f.tipo)" aria-label="Usuario o link" autocomplete="off" />
+      <button type="button" class="quitar" (click)="quitar(i)" aria-label="Quitar esta red">×</button>
+    </div>
+    @if (mostrarErrores() && f.valor.trim() && invalida(f)) {
+      <span class="error">Revisá este link: poné tu usuario (por ejemplo &#64;tuusuario) o el link completo.</span>
+    }
+  }
+
+  @if (filas().length < MAX) {
+    <button type="button" class="agregar" (click)="agregar()">+ Agregar red</button>
+  } @else {
+    <span class="ayuda">Llegaste al máximo de {{ MAX }}.</span>
+  }
+</fieldset>

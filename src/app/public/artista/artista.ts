@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Artista, Artistas } from '../../core/services/artistas';
 import { Obra } from '../../core/services/artworks';
 import { TarjetaObra } from '../../shared/tarjeta-obra/tarjeta-obra';
+import { nombreRed, textoRed } from '../../core/data/redes';
 
 // Con menos obras que esto no se muestra el carrusel: repetiría la grilla
 const MIN_PARA_CARRUSEL = 5;
@@ -72,6 +73,9 @@ export class ArtistaPagina {
     this.puedeIzq.set(el.scrollLeft > 4);
     this.puedeDer.set(el.scrollLeft < max - 4);
   }
+
+  readonly nombreRed = nombreRed;
+  readonly textoRed = textoRed;
 
   inicial(nombre: string) {
     return nombre.trim().charAt(0).toUpperCase();

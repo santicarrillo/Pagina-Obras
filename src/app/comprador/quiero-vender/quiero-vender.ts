@@ -2,10 +2,12 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Auth } from '../../core/services/auth';
+import { Red } from '../../core/data/redes';
+import { EditorRedes } from '../../shared/editor-redes/editor-redes';
 
 @Component({
   selector: 'app-quiero-vender',
-  imports: [FormsModule],
+  imports: [FormsModule, EditorRedes],
   templateUrl: './quiero-vender.html',
   styleUrl: './quiero-vender.css'
 })
@@ -16,7 +18,8 @@ export class QuieroVender {
   nombreArtistico = this.auth.usuario()?.displayName ?? '';
   ciudad = '';
   bio = '';
-  instagram = '';
+  redes: Red[] = [];
+  redesValidas = true;
   telefono = '';
   codigoPostal = '';
 
@@ -36,6 +39,11 @@ export class QuieroVender {
     return largo >= 20 && largo <= this.MAX_BIO;
   }
 
+  cambioRedes(e: { redes: Red[]; validas: boolean }) {
+    this.redes = e.redes;
+    this.redesValidas = e.validas;
+  }
+
   get telefonoValido() {
     return /^[\d\s()+-]{6,20}$/.test(this.telefono.trim());
   }
@@ -47,7 +55,7 @@ export class QuieroVender {
   async activar() {
     this.intentoEnviar.set(true);
     this.error.set('');
-    if (!this.nombreValido || !this.bioValida || !this.telefonoValido || !this.codigoPostalValido) return;
+    if (!this.nombreValido || !this.bioValida || !this.telefonoValido || !this.codigoPostalValido || !this.redesValidas) return;
 
     this.guardando.set(true);
     try {
@@ -59,7 +67,7 @@ export class QuieroVender {
         nombreArtistico: this.nombreArtistico.trim(),
         ciudad: this.ciudad.trim(),
         bio: this.bio.trim(),
-        instagram: this.instagram.trim().replace(/^@/, '')
+        redes: this.redes
       });
       this.router.navigate(['/admin/obras']);
     } catch (e: any) {

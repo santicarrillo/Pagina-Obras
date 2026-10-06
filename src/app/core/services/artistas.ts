@@ -3,13 +3,14 @@ import { getFirestore, collection, doc, getDoc, getDocs, query, where } from 'fi
 import { firebaseApp } from './firebase';
 import { Obra } from './artworks';
 import { ARTISTAS_DEMO, OBRAS_DEMO } from '../data/obras-demo';
+import { Red, redesDesde } from '../data/redes';
 
 export interface Artista {
   id: string;
   nombreArtistico: string;
   ciudad: string;
   bio: string;
-  instagram: string;
+  redes: Red[];
 }
 
 // Saca tildes y pasa a minúsculas: "Lucía" y "lucia" encuentran lo mismo
@@ -96,7 +97,7 @@ export class Artistas {
       nombreArtistico: d['nombreArtistico'] ?? '',
       ciudad: d['ciudad'] ?? '',
       bio: d['bio'] ?? '',
-      instagram: d['instagram'] ?? ''
+      redes: redesDesde(d)
     };
   }
 }

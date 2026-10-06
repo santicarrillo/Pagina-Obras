@@ -8,15 +8,24 @@ import type { Artista } from '../services/artistas';
 
 const ARTISTAS: Artista[] = [
   {
-    id: 'demo-lucia', nombreArtistico: 'Lucía Ferraro', ciudad: 'Tandil', instagram: 'luciaferraro.arte',
+    id: 'demo-lucia', nombreArtistico: 'Lucía Ferraro', ciudad: 'Tandil',
+    redes: [
+      { tipo: 'instagram', url: 'https://instagram.com/luciaferraro.arte' },
+      { tipo: 'web', url: 'https://luciaferraro.com.ar' }
+    ],
     bio: 'Pinto paisajes de la llanura y formas que salen de mirar mucho tiempo la misma luz. Trabajo con óleo y técnicas mixtas sobre madera.'
   },
   {
-    id: 'demo-tomas', nombreArtistico: 'Tomás Ibarra', ciudad: 'Rosario', instagram: '',
+    id: 'demo-tomas', nombreArtistico: 'Tomás Ibarra', ciudad: 'Rosario', redes: [],
     bio: 'Retratos y superficies. Me interesa el color como estado de ánimo más que como descripción.'
   },
   {
-    id: 'demo-martina', nombreArtistico: 'Martina Sosa', ciudad: 'Córdoba', instagram: 'martinasosa',
+    id: 'demo-martina', nombreArtistico: 'Martina Sosa', ciudad: 'Córdoba',
+    redes: [
+      { tipo: 'instagram', url: 'https://instagram.com/martinasosa' },
+      { tipo: 'tiktok', url: 'https://www.tiktok.com/@martinasosa' },
+      { tipo: 'youtube', url: 'https://www.youtube.com/@martinasosa' }
+    ],
     bio: 'Dibujo con carbonilla y materiales encontrados. Cada obra empieza en un cuaderno de viaje.'
   }
 ];

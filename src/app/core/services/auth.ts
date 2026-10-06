@@ -7,6 +7,7 @@ import {
 import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { firebaseApp } from './firebase';
+import { Red, redesDesde } from '../data/redes';
 
 export type Rol = 'comprador';
 
@@ -15,7 +16,7 @@ export interface PerfilArtista {
   nombreArtistico: string;
   ciudad: string;
   bio: string;
-  instagram: string;
+  redes: Red[];
 }
 
 interface Perfil {
@@ -96,7 +97,15 @@ export class Auth {
     }
 
     const artistaSnap = await getDoc(doc(this.db, 'artists', user.uid));
-    const artista = artistaSnap.exists() ? (artistaSnap.data() as PerfilArtista) : null;
+    const d = artistaSnap.data();
+    const artista: PerfilArtista | null = artistaSnap.exists() && d
+      ? {
+          nombreArtistico: d['nombreArtistico'] ?? '',
+          ciudad: d['ciudad'] ?? '',
+          bio: d['bio'] ?? '',
+          redes: redesDesde(d)
+        }
+      : null;
 
     return { rol: 'comprador', artista };
   }
@@ -125,12 +134,12 @@ export class Auth {
     const user = this.usuario();
     if (!user || !this.esArtista()) throw new Error('No tenés perfil de artista');
 
-    // Solo se mandan estos 4 campos: la fecha de alta no se toca
+    // Solo se mandan estos campos: la fecha de alta no se toca
     await updateDoc(doc(this.db, 'artists', user.uid), {
       nombreArtistico: datos.nombreArtistico,
       ciudad: datos.ciudad,
       bio: datos.bio,
-      instagram: datos.instagram
+      redes: datos.redes
     });
 
     this.perfilArtista.set(datos);

@@ -2,11 +2,13 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../core/services/auth';
+import { Red } from '../../core/data/redes';
+import { EditorRedes } from '../../shared/editor-redes/editor-redes';
 import { Pagos, mensajeDeError } from '../../core/services/mercadopago';
 
 @Component({
   selector: 'app-perfil',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, EditorRedes],
   templateUrl: './perfil.html',
   styleUrl: './perfil.css',
 })
@@ -25,7 +27,8 @@ export class Perfil implements OnInit {
   nombreArtistico = this.actual?.nombreArtistico ?? '';
   ciudad = this.actual?.ciudad ?? '';
   bio = this.actual?.bio ?? '';
-  instagram = this.actual?.instagram ?? '';
+  redes: Red[] = this.actual?.redes ?? [];
+  redesValidas = true;
   telefono = '';
   codigoPostal = '';
 
@@ -61,6 +64,11 @@ export class Perfil implements OnInit {
     this.guardado.set(false);
   }
 
+  cambioRedes(e: { redes: Red[]; validas: boolean }) {
+    this.redes = e.redes;
+    this.redesValidas = e.validas;
+  }
+
   get telefonoValido() {
     return /^[\d\s()+-]{6,20}$/.test(this.telefono.trim());
   }
@@ -73,7 +81,7 @@ export class Perfil implements OnInit {
     this.intentoEnviar.set(true);
     this.error.set('');
     this.guardado.set(false);
-    if (!this.nombreValido || !this.bioValida || !this.telefonoValido || !this.codigoPostalValido) return;
+    if (!this.nombreValido || !this.bioValida || !this.telefonoValido || !this.codigoPostalValido || !this.redesValidas) return;
 
     this.guardando.set(true);
     try {
@@ -85,7 +93,7 @@ export class Perfil implements OnInit {
         nombreArtistico: this.nombreArtistico.trim(),
         ciudad: this.ciudad.trim(),
         bio: this.bio.trim(),
-        instagram: this.instagram.trim().replace(/^@/, ''),
+        redes: this.redes,
       });
       this.guardado.set(true);
     } catch (e: any) {
