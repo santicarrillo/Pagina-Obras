@@ -43,6 +43,19 @@
               </li>
             }
           </ul>
+
+          <p class="envio-linea">
+            @if (p.costoEnvio > 0) {
+              Envío {{ precio(p.costoEnvio) }}
+            } @else if (p.envioACoordinar) {
+              Envío a coordinar con el artista
+            } @else {
+              Envío gratis
+            }
+            @if (p.envio; as e) {
+              · a {{ e.direccion }}, {{ e.ciudad }}
+            }
+          </p>
         </li>
       }
     </ul>

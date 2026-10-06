@@ -4,6 +4,9 @@
     <h1>Galería</h1>
   </header>
 
+  @if (aviso()) {
+    <p class="aviso-ok" role="status">{{ aviso() }}</p>
+  }
   @if (error()) {
     <p class="aviso-error" role="alert">{{ error() }}</p>
   }

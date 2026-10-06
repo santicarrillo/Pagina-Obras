@@ -105,6 +105,36 @@ async function tokenDelArtista(uid) {
   }
 }
 
+// Datos de envío que manda el comprador. Se validan y se recortan acá: no se confía en el navegador.
+const PROVINCIAS = [
+  'Buenos Aires', 'Ciudad Autónoma de Buenos Aires', 'Catamarca', 'Chaco', 'Chubut', 'Córdoba',
+  'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy', 'La Pampa', 'La Rioja', 'Mendoza', 'Misiones',
+  'Neuquén', 'Río Negro', 'Salta', 'San Juan', 'San Luis', 'Santa Cruz', 'Santa Fe',
+  'Santiago del Estero', 'Tierra del Fuego', 'Tucumán'
+];
+
+function validarEnvio(e) {
+  const txt = (v, min, max) => {
+    const t = typeof v === 'string' ? v.trim() : '';
+    return t.length >= min && t.length <= max ? t : null;
+  };
+  const datos = {
+    nombre: txt(e?.nombre, 3, 80),
+    telefono: txt(e?.telefono, 6, 20),
+    direccion: txt(e?.direccion, 4, 120),
+    ciudad: txt(e?.ciudad, 2, 60),
+    provincia: PROVINCIAS.includes(e?.provincia) ? e.provincia : null,
+    codigoPostal: txt(e?.codigoPostal, 4, 8),
+    notas: typeof e?.notas === 'string' ? e.notas.trim().slice(0, 200) : ''
+  };
+  const falta = Object.entries(datos).find(([k, v]) => k !== 'notas' && v === null);
+  if (falta || !/^[\d\s()+-]+$/.test(datos.telefono) || !/^[A-Za-z0-9]+$/.test(datos.codigoPostal)) {
+    throw new HttpsError('invalid-argument', 'Revisá los datos de envío.');
+  }
+  datos.codigoPostal = datos.codigoPostal.toUpperCase();
+  return datos;
+}
+
 function exigirLogin(request) {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Tenés que iniciar sesión.');
   return request.auth;
@@ -204,6 +234,30 @@ exports.mpOauthCallback = onRequest({ secrets: [MP_CLIENT_SECRET] }, async (req,
 });
 
 // ---------------------------------------------------------------------------
+// Dejar de ser artista: pausa sus obras, borra su perfil y desconecta Mercado Pago.
+// Los pedidos y ventas NO se tocan: compradores y artista conservan su historial.
+// ---------------------------------------------------------------------------
+
+exports.dejarDeSerArtista = onCall(async (request) => {
+  const { uid } = exigirLogin(request);
+
+  const publicadas = await db.collection('artworks')
+    .where('artistId', '==', uid)
+    .where('estado', '==', 'publicada')
+    .get();
+
+  const batch = db.batch();
+  publicadas.docs.forEach(d => batch.update(d.ref, { estado: 'pausada' }));
+  batch.delete(db.doc(`artists/${uid}`));
+  batch.delete(db.doc(`pagos_artistas/${uid}`));
+  batch.delete(db.doc(`mp_cuentas/${uid}`));
+  await batch.commit();
+
+  logger.info('Dejó de ser artista', { uid, obrasPausadas: publicadas.size });
+  return { obrasPausadas: publicadas.size };
+});
+
+// ---------------------------------------------------------------------------
 // 3) El comprador paga: creamos el pedido y la preferencia de pago
 //    Cada pago es para UN artista (la plata va a su cuenta).
 // ---------------------------------------------------------------------------
@@ -217,6 +271,7 @@ exports.crearPago = onCall({ secrets: [MP_CLIENT_SECRET] }, async (request) => {
     throw new HttpsError('invalid-argument', 'Lista de obras inválida.');
   }
   const ids = [...new Set(obraIds)];
+  const envio = validarEnvio(request.data?.envio);
 
   // Se leen las obras del servidor: los precios del navegador no se usan nunca
   const snaps = await Promise.all(ids.map(id => db.doc(`artworks/${id}`).get()));
@@ -238,8 +293,13 @@ exports.crearPago = onCall({ secrets: [MP_CLIENT_SECRET] }, async (request) => {
     throw new HttpsError('failed-precondition', 'Este artista todavía no puede recibir pagos.');
   }
 
-  const total = obras.reduce((s, o) => s + o.precio, 0);
-  const comision = Math.round((total * COMISION_PORCENTAJE.value()) / 100);
+  const subtotal = obras.reduce((s, o) => s + o.precio, 0);
+  // Envío fijo que puso el artista en cada obra (las obras viejas sin envío: a coordinar, $0)
+  const costoEnvio = obras.reduce((s, o) => s + (Number.isInteger(o.envio) && o.envio > 0 ? o.envio : 0), 0);
+  const envioACoordinar = obras.some(o => !Number.isInteger(o.envio));
+  const total = subtotal + costoEnvio;
+  // La comisión de Anverso es solo sobre las obras, nunca sobre el envío
+  const comision = Math.round((subtotal * COMISION_PORCENTAJE.value()) / 100);
 
   const ordenRef = db.collection('orders').doc();
   await ordenRef.set({
@@ -250,8 +310,13 @@ exports.crearPago = onCall({ secrets: [MP_CLIENT_SECRET] }, async (request) => {
     artistaNombre: obras[0].artistaNombre ?? '',
     obraIds: ids,
     items: obras.map(o => ({
-      id: o.id, titulo: o.titulo, precio: o.precio, imagenUrl: o.imagenUrl, tecnica: o.tecnica ?? ''
+      id: o.id, titulo: o.titulo, precio: o.precio, imagenUrl: o.imagenUrl, tecnica: o.tecnica ?? '',
+      envio: Number.isInteger(o.envio) ? o.envio : null
     })),
+    subtotal,
+    costoEnvio,
+    envioACoordinar,
+    envio,
     total,
     comision,
     estado: 'pendiente',
@@ -273,7 +338,15 @@ exports.crearPago = onCall({ secrets: [MP_CLIENT_SECRET] }, async (request) => {
           quantity: 1,
           currency_id: 'ARS',
           unit_price: o.precio
-        })),
+        })).concat(costoEnvio > 0 ? [{
+          id: 'envio',
+          title: 'Envío',
+          description: `A ${envio.ciudad}, ${envio.provincia}`.slice(0, 250),
+          category_id: 'services',
+          quantity: 1,
+          currency_id: 'ARS',
+          unit_price: costoEnvio
+        }] : []),
         payer: auth.token.email ? { email: auth.token.email } : undefined,
         external_reference: ordenRef.id,
         notification_url: `${BASE_FUNCIONES}/mpWebhook?orden=${ordenRef.id}`,

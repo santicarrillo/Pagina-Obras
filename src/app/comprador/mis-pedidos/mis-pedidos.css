@@ -151,3 +151,9 @@ h1 {
     padding: 36px 18px 64px;
   }
 }
+
+.envio-linea {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: rgba(245, 238, 232, 0.55);
+}

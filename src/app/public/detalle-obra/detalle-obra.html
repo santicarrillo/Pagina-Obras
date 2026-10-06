@@ -35,6 +35,15 @@
           <span class="precio-label">Precio</span>
           <strong class="precio-valor">{{ precio(o.precio) }}</strong>
         </div>
+        <p class="envio-detalle">
+          @if (o.envio === null) {
+            Envío a coordinar con el artista
+          } @else if (o.envio === 0) {
+            Envío gratis a todo el país
+          } @else {
+            + {{ precio(o.envio) }} de envío a todo el país
+          }
+        </p>
 
         @if (o.estado === 'vendida') {
           <p class="estado-obra">Esta obra ya fue vendida.</p>

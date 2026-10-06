@@ -5,6 +5,7 @@ import {
   onAuthStateChanged, signOut, User
 } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { firebaseApp } from './firebase';
 
 export type Rol = 'comprador';
@@ -134,6 +135,22 @@ export class Auth {
 
     this.perfilArtista.set(datos);
     this.perfilPromise = Promise.resolve({ rol: 'comprador', artista: datos });
+  }
+
+  // Vuelve a ser solo comprador. El servidor pausa sus obras, borra el perfil de artista
+  // y desconecta Mercado Pago. Sus ventas y compras quedan como están.
+  async dejarDeSerArtista(): Promise<number> {
+    const user = this.usuario();
+    if (!user || !this.esArtista()) throw new Error('No tenés perfil de artista');
+
+    const fn = httpsCallable<void, { obrasPausadas: number }>(
+      getFunctions(firebaseApp, 'southamerica-east1'), 'dejarDeSerArtista'
+    );
+    const { data } = await fn();
+
+    this.perfilArtista.set(null);
+    this.perfilPromise = Promise.resolve({ rol: 'comprador', artista: null });
+    return data.obrasPausadas;
   }
 
   // ---------- Login con email (link) ----------

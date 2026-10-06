@@ -221,3 +221,14 @@ h1 {
   background: rgba(159, 194, 138, 0.07);
   color: #cfe3c2;
 }
+
+.acciones {
+  display: flex;
+  gap: 18px;
+}
+
+.envio {
+  color: rgba(245, 238, 232, 0.5);
+}
+
+.estado[data-estado='pausada'] { color: rgba(245, 238, 232, 0.5); }

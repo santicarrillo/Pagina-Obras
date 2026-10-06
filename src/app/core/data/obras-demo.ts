@@ -30,6 +30,7 @@ function obra(
     artistId: artista.id,
     artistaNombre: artista.nombreArtistico,
     titulo, tecnica, medidas, anio, precio, descripcion,
+    envio: n % 3 === 0 ? 0 : 6500,
     imagenUrl: `https://images.unsplash.com/${foto}?auto=format&fit=crop&w=900&q=80`,
     estado: 'publicada',
     creadoEn: null

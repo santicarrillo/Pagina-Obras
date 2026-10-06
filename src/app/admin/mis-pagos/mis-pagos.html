@@ -46,8 +46,32 @@
                 · <a [href]="'mailto:' + v.buyerEmail + '?subject=Tu compra en Anverso'">{{ v.buyerEmail }}</a>
               }
             </p>
-            <p class="ayuda">Escribile para coordinar el envío o la entrega.</p>
           </div>
+
+          @if (v.envio; as e) {
+            <div class="comprador envio">
+              <span class="etiqueta">Enviar a</span>
+              <p>
+                {{ e.nombre }} · <a [href]="'tel:' + e.telefono">{{ e.telefono }}</a><br />
+                {{ e.direccion }}<br />
+                {{ e.ciudad }}, {{ e.provincia }} ({{ e.codigoPostal }})
+              </p>
+              @if (e.notas) {
+                <p class="notas">"{{ e.notas }}"</p>
+              }
+              <p class="ayuda">
+                @if (v.costoEnvio > 0) {
+                  El comprador pagó {{ precio(v.costoEnvio) }} de envío. Despachá la obra y avisale cómo seguirla.
+                } @else if (v.envioACoordinar) {
+                  Esta venta no tenía envío fijo: escribile para coordinarlo.
+                } @else {
+                  Envío gratis: despachá la obra y avisale cómo seguirla.
+                }
+              </p>
+            </div>
+          } @else {
+            <p class="ayuda-suelta">Escribile al comprador para coordinar el envío o la entrega.</p>
+          }
         </li>
       }
     </ul>

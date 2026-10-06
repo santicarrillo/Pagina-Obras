@@ -10,6 +10,7 @@ export interface ItemCarrito {
   artistId: string;
   artistaNombre: string;
   precio: number;
+  envio: number | null;   // 0 = gratis, null = a coordinar
   imagenUrl: string;
 }
 
@@ -53,6 +54,7 @@ export class Carrito {
       artistId: obra.artistId,
       artistaNombre: obra.artistaNombre,
       precio: obra.precio,
+      envio: obra.envio,
       imagenUrl: obra.imagenUrl
     }]);
   }
@@ -89,8 +91,12 @@ export class Carrito {
       }
       if (obra.precio !== item.precio) {
         avisos.push(`El precio de "${item.titulo}" cambió.`);
+      } else if ((obra.envio ?? null) !== (item.envio ?? null)) {
+        avisos.push(`El costo de envío de "${item.titulo}" cambió.`);
       }
-      vigentes.push({ ...item, precio: obra.precio, titulo: obra.titulo, imagenUrl: obra.imagenUrl });
+      vigentes.push({
+        ...item, precio: obra.precio, envio: obra.envio, titulo: obra.titulo, imagenUrl: obra.imagenUrl
+      });
     }
 
     this.items.set(vigentes);
@@ -100,7 +106,9 @@ export class Carrito {
   private leer(): ItemCarrito[] {
     try {
       const guardado = JSON.parse(localStorage.getItem(CLAVE) ?? '[]');
-      return Array.isArray(guardado) ? guardado : [];
+      return Array.isArray(guardado)
+        ? guardado.map((i: ItemCarrito) => ({ ...i, envio: typeof i.envio === 'number' ? i.envio : null }))
+        : [];
     } catch {
       return [];
     }

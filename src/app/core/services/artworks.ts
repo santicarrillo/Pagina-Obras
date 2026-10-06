@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import {
-  getFirestore, collection, addDoc, getDoc, getDocs, deleteDoc, doc,
+  getFirestore, collection, addDoc, getDoc, getDocs, deleteDoc, doc, updateDoc,
   query, where, serverTimestamp, Timestamp
 } from 'firebase/firestore';
 import { firebaseApp } from './firebase';
@@ -10,7 +10,8 @@ import { Auth } from './auth';
 // publicada:  visible en la galería
 // rechazada:  la moderación la bajó, con motivoRechazo
 // vendida:    ya se compró
-export type EstadoObra = 'procesando' | 'publicada' | 'rechazada' | 'vendida';
+// pausada:    el artista la sacó de la venta (o dejó de ser artista); se puede volver a publicar
+export type EstadoObra = 'procesando' | 'publicada' | 'rechazada' | 'vendida' | 'pausada';
 
 export interface Obra {
   id: string;
@@ -21,6 +22,8 @@ export interface Obra {
   medidas: string;
   anio: number | null;
   precio: number;
+  // Costo fijo de envío que pone el artista. 0 = gratis, null = a coordinar (obras viejas)
+  envio: number | null;
   descripcion: string;
   imagenUrl: string;
   estado: EstadoObra;
@@ -29,7 +32,7 @@ export interface Obra {
 }
 
 // Lo que completa el artista en el formulario
-export type DatosObra = Pick<Obra, 'titulo' | 'tecnica' | 'medidas' | 'anio' | 'precio' | 'descripcion' | 'imagenUrl'>;
+export type DatosObra = Pick<Obra, 'titulo' | 'tecnica' | 'medidas' | 'anio' | 'precio' | 'envio' | 'descripcion' | 'imagenUrl'>;
 
 // Mientras no exista la moderación automática, las obras se publican directo.
 // Cuando esté la Firebase Function, esto pasa a 'procesando' (y también en las reglas).
@@ -90,6 +93,11 @@ export class Artworks {
     }
   }
 
+  // Sacar de la venta o volver a publicar (solo entre publicada y pausada)
+  async cambiarEstado(id: string, estado: 'publicada' | 'pausada') {
+    await updateDoc(doc(this.db, 'artworks', id), { estado });
+  }
+
   async eliminar(id: string) {
     await deleteDoc(doc(this.db, 'artworks', id));
   }
@@ -104,6 +112,7 @@ export class Artworks {
       medidas: data['medidas'] ?? '',
       anio: data['anio'] ?? null,
       precio: data['precio'] ?? 0,
+      envio: typeof data['envio'] === 'number' ? data['envio'] : null,
       descripcion: data['descripcion'] ?? '',
       imagenUrl: data['imagenUrl'] ?? '',
       estado: data['estado'] ?? 'procesando',

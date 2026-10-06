@@ -45,4 +45,38 @@
       }
     </div>
   </form>
+
+  <!-- Volver a ser solo comprador -->
+  <section class="zona-baja" aria-labelledby="titulo-baja">
+    <h2 id="titulo-baja">Dejar de vender en Anverso</h2>
+    <p>
+      Tu cuenta sigue existiendo y vas a poder seguir comprando. Tus obras dejan de mostrarse,
+      pero no se borran: si más adelante volvés a activar tu perfil, las publicás de nuevo desde "Mis obras".
+    </p>
+
+    @if (!confirmandoBaja()) {
+      <button type="button" class="btn-baja" (click)="confirmandoBaja.set(true)">Dejar de ser artista</button>
+    } @else {
+      <div class="confirmar-baja" role="alertdialog" aria-labelledby="titulo-confirmar">
+        <p id="titulo-confirmar"><strong>¿Seguro?</strong> Esto va a pasar:</p>
+        <ul>
+          <li>Tus obras publicadas se pausan y salen de la galería.</li>
+          <li>Tu perfil de artista deja de aparecer en el buscador.</li>
+          <li>Se desconecta tu cuenta de Mercado Pago.</li>
+          <li>Tus ventas anteriores y los pedidos de tus compradores <strong>no se borran</strong>.</li>
+        </ul>
+        @if (errorBaja()) {
+          <p class="aviso-error" role="alert">{{ errorBaja() }}</p>
+        }
+        <div class="botones-baja">
+          <button type="button" class="btn-baja peligro" (click)="dejarDeSerArtista()" [disabled]="dandoDeBaja()">
+            {{ dandoDeBaja() ? 'Procesando...' : 'Sí, dejar de ser artista' }}
+          </button>
+          <button type="button" class="btn-cancelar" (click)="confirmandoBaja.set(false)" [disabled]="dandoDeBaja()">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    }
+  </section>
 </section>

@@ -31,8 +31,11 @@ export class MisObras implements OnInit {
     procesando: 'Revisando imagen',
     publicada: 'Publicada',
     rechazada: 'Rechazada',
-    vendida: 'Vendida'
+    vendida: 'Vendida',
+    pausada: 'Pausada'
   };
+
+  cambiando = signal<string | null>(null);
 
   private formatoPesos = new Intl.NumberFormat('es-AR', {
     style: 'currency', currency: 'ARS', maximumFractionDigits: 0
@@ -65,6 +68,26 @@ export class MisObras implements OnInit {
     } finally {
       this.borrando.set(null);
     }
+  }
+
+  // Pausar saca la obra de la galería sin borrarla; se puede volver a publicar
+  async alternarPausa(obra: Obra) {
+    const nuevo = obra.estado === 'pausada' ? 'publicada' : 'pausada';
+    this.cambiando.set(obra.id);
+    this.error.set('');
+    try {
+      await this.artworks.cambiarEstado(obra.id, nuevo);
+      this.obras.update(lista => lista.map(o => (o.id === obra.id ? { ...o, estado: nuevo } : o)));
+    } catch {
+      this.error.set(`No se pudo ${nuevo === 'pausada' ? 'pausar' : 'volver a publicar'} "${obra.titulo}".`);
+    } finally {
+      this.cambiando.set(null);
+    }
+  }
+
+  envio(obra: Obra) {
+    if (obra.envio === null) return 'Envío a coordinar';
+    return obra.envio === 0 ? 'Envío gratis' : `Envío ${this.precio(obra.envio)}`;
   }
 
   private async revisarMercadoPago() {

@@ -80,6 +80,7 @@ export class Artistas {
           medidas: data['medidas'] ?? '',
           anio: data['anio'] ?? null,
           precio: data['precio'] ?? 0,
+          envio: typeof data['envio'] === 'number' ? data['envio'] : null,
           descripcion: data['descripcion'] ?? '',
           imagenUrl: data['imagenUrl'] ?? '',
           estado: data['estado'],

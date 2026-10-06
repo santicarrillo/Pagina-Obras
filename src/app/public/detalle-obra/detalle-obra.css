@@ -239,3 +239,9 @@
 .en-carrito .estado-obra {
   color: #9fc28a;
 }
+
+.envio-detalle {
+  margin: -12px 0 24px;
+  font-size: 0.88rem;
+  color: rgba(245, 238, 232, 0.6);
+}

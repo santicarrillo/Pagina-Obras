@@ -74,7 +74,9 @@ service cloud.firestore {
           && textoEntre(d.medidas, 0, 40)
           && textoEntre(d.descripcion, 0, 1000)
           && (d.anio == null || d.anio is int)
-          && d.precio is int && d.precio > 0;
+          && d.precio is int && d.precio > 0
+          // Envío fijo: 0 = gratis. Las obras viejas pueden no tenerlo.
+          && (!('envio' in d) || (d.envio is int && d.envio >= 0 && d.envio <= 10000000));
       }
 
       // Todos ven las publicadas; el artista además ve las suyas en cualquier estado
@@ -84,7 +86,7 @@ service cloud.firestore {
       allow create: if esArtista()
         && request.resource.data.keys().hasOnly([
              'titulo', 'tecnica', 'medidas', 'anio', 'precio', 'descripcion',
-             'imagenUrl', 'artistId', 'artistaNombre', 'estado', 'creadoEn'])
+             'imagenUrl', 'artistId', 'artistaNombre', 'estado', 'creadoEn', 'envio'])
         && datosObraValidos()
         && request.resource.data.artistId == request.auth.uid
         && textoEntre(request.resource.data.artistaNombre, 2, 60)
@@ -100,8 +102,16 @@ service cloud.firestore {
         && resource.data.artistId == request.auth.uid
         && resource.data.estado != 'vendida'
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['titulo', 'tecnica', 'medidas', 'anio', 'precio', 'descripcion'])
+             .hasOnly(['titulo', 'tecnica', 'medidas', 'anio', 'precio', 'descripcion', 'envio'])
         && datosObraValidos();
+
+      // Pausar / volver a publicar: solo se toca el estado, y solo entre estos dos.
+      // Para volver a publicar hay que seguir siendo artista.
+      allow update: if logueado()
+        && resource.data.artistId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado'])
+        && ((resource.data.estado == 'publicada' && request.resource.data.estado == 'pausada')
+            || (resource.data.estado == 'pausada' && request.resource.data.estado == 'publicada' && esArtista()));
 
       // Al borrar no existe request.resource, por eso se usa resource
       allow delete: if logueado()

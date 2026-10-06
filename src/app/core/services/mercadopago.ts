@@ -6,6 +6,24 @@ import { firebaseApp } from './firebase';
 // Misma región donde están desplegadas las funciones (functions/index.js)
 const functions = getFunctions(firebaseApp, 'southamerica-east1');
 
+// A dónde manda la obra el artista. Lo completa el comprador antes de pagar.
+export interface DatosEnvio {
+  nombre: string;
+  telefono: string;
+  direccion: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  notas: string;
+}
+
+export const PROVINCIAS = [
+  'Buenos Aires', 'Ciudad Autónoma de Buenos Aires', 'Catamarca', 'Chaco', 'Chubut', 'Córdoba',
+  'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy', 'La Pampa', 'La Rioja', 'Mendoza', 'Misiones',
+  'Neuquén', 'Río Negro', 'Salta', 'San Juan', 'San Luis', 'Santa Cruz', 'Santa Fe',
+  'Santiago del Estero', 'Tierra del Fuego', 'Tucumán'
+];
+
 @Injectable({ providedIn: 'root' })
 export class Pagos {
   private db = getFirestore(firebaseApp);
@@ -37,10 +55,17 @@ export class Pagos {
   }
 
   // Crea el pedido y devuelve la URL de Mercado Pago donde el comprador paga
-  async iniciarPago(obraIds: string[]): Promise<string> {
-    const fn = httpsCallable<{ obraIds: string[] }, { url: string; ordenId: string }>(functions, 'crearPago');
-    const { data } = await fn({ obraIds });
+  async iniciarPago(obraIds: string[], envio: DatosEnvio): Promise<string> {
+    const fn = httpsCallable<{ obraIds: string[]; envio: DatosEnvio }, { url: string; ordenId: string }>(
+      functions, 'crearPago'
+    );
+    const { data } = await fn({ obraIds, envio });
     return data.url;
+  }
+
+  // Si el artista deja de ser artista, se olvida lo que sabíamos de su cuenta
+  olvidar(artistId: string) {
+    this.conectados.delete(artistId);
   }
 }
 

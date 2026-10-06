@@ -11,6 +11,17 @@ export interface ItemPedido {
   precio: number;
   imagenUrl: string;
   tecnica: string;
+  envio: number | null;
+}
+
+export interface DireccionEnvio {
+  nombre: string;
+  telefono: string;
+  direccion: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  notas: string;
 }
 
 export interface Pedido {
@@ -21,6 +32,10 @@ export interface Pedido {
   artistId: string;
   artistaNombre: string;
   items: ItemPedido[];
+  subtotal: number;
+  costoEnvio: number;
+  envioACoordinar: boolean;
+  envio: DireccionEnvio | null;
   total: number;
   estado: EstadoPedido;
   creadoEn: Date | null;
@@ -61,6 +76,10 @@ export class Pedidos {
       artistId: d['artistId'],
       artistaNombre: d['artistaNombre'] ?? '',
       items: d['items'] ?? [],
+      subtotal: d['subtotal'] ?? d['total'] ?? 0,
+      costoEnvio: d['costoEnvio'] ?? 0,
+      envioACoordinar: d['envioACoordinar'] ?? false,
+      envio: d['envio'] ?? null,
       total: d['total'] ?? 0,
       estado: d['estado'] ?? 'pendiente',
       creadoEn: fecha(d['creadoEn']),

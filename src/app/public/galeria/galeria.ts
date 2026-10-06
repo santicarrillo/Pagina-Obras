@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Artworks, Obra } from '../../core/services/artworks';
 import { Auth } from '../../core/services/auth';
 import { OBRAS_DEMO } from '../../core/data/obras-demo';
@@ -18,6 +18,11 @@ export class Galeria implements OnInit {
   obras = signal<Obra[]>([]);
   cargando = signal(true);
   error = signal('');
+  aviso = signal(
+    inject(ActivatedRoute).snapshot.queryParamMap.get('baja') === 'artista'
+      ? 'Listo, ya no sos artista. Tus obras quedaron pausadas y podés volver a activar tu perfil cuando quieras desde "Quiero vender".'
+      : ''
+  );
 
   async ngOnInit() {
     try {

@@ -62,15 +62,22 @@
             <span class="estado" [attr.data-estado]="obra.estado">{{ nombresEstado[obra.estado] }}</span>
             <h3>{{ obra.titulo }}</h3>
             <p class="tecnica">{{ obra.tecnica }}@if (obra.medidas) {, {{ obra.medidas }}}</p>
-            <p class="precio">{{ precio(obra.precio) }}</p>
+            <p class="precio">{{ precio(obra.precio) }} <span class="envio">· {{ envio(obra) }}</span></p>
             @if (obra.estado === 'rechazada' && obra.motivoRechazo) {
               <p class="motivo">{{ obra.motivoRechazo }}</p>
             }
           </div>
           @if (obra.estado !== 'vendida') {
-            <button type="button" class="eliminar" (click)="eliminar(obra)" [disabled]="borrando() === obra.id">
-              {{ borrando() === obra.id ? 'Eliminando...' : 'Eliminar' }}
-            </button>
+            <div class="acciones">
+              @if (obra.estado === 'publicada' || obra.estado === 'pausada') {
+                <button type="button" class="eliminar" (click)="alternarPausa(obra)" [disabled]="cambiando() === obra.id">
+                  {{ obra.estado === 'pausada' ? 'Volver a publicar' : 'Pausar' }}
+                </button>
+              }
+              <button type="button" class="eliminar" (click)="eliminar(obra)" [disabled]="borrando() === obra.id">
+                {{ borrando() === obra.id ? 'Eliminando...' : 'Eliminar' }}
+              </button>
+            </div>
           }
         </li>
       }

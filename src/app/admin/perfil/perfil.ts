@@ -1,7 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../core/services/auth';
+import { Pagos, mensajeDeError } from '../../core/services/mercadopago';
 
 @Component({
   selector: 'app-perfil',
@@ -11,6 +12,13 @@ import { Auth } from '../../core/services/auth';
 })
 export class Perfil {
   private auth = inject(Auth);
+  private pagos = inject(Pagos);
+  private router = inject(Router);
+
+  // Dejar de ser artista: primero se muestra la explicación, después se confirma
+  confirmandoBaja = signal(false);
+  dandoDeBaja = signal(false);
+  errorBaja = signal('');
 
   // Arranca con los datos actuales del artista
   private actual = this.auth.perfilArtista();
@@ -65,6 +73,21 @@ export class Perfil {
       );
     } finally {
       this.guardando.set(false);
+    }
+  }
+
+  async dejarDeSerArtista() {
+    this.dandoDeBaja.set(true);
+    this.errorBaja.set('');
+    const uid = this.auth.usuario()?.uid;
+    try {
+      await this.auth.dejarDeSerArtista();
+      if (uid) this.pagos.olvidar(uid);
+      this.router.navigate(['/'], { queryParams: { baja: 'artista' } });
+    } catch (e) {
+      console.error(e);
+      this.errorBaja.set(mensajeDeError(e, 'No pudimos procesar el cambio. Probá de nuevo en un rato.'));
+      this.dandoDeBaja.set(false);
     }
   }
 }

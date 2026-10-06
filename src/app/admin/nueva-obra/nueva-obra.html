@@ -80,6 +80,16 @@
         }
       </div>
 
+      <div class="campo" [class.con-error]="intentoEnviar() && !envioValido">
+        <label for="envio">Costo de envío</label>
+        <input id="envio" name="envio" type="number" min="0" step="1" [(ngModel)]="envio" [disabled]="ocupado" />
+        @if (intentoEnviar() && !envioValido) {
+          <span class="error">Poné cuánto cobrás por el envío, en pesos. Si es gratis, poné 0.</span>
+        } @else {
+          <span class="ayuda">Lo que le cobrás al comprador por mandarle la obra a cualquier parte del país. Vos la despachás. Poné 0 si el envío es gratis.</span>
+        }
+      </div>
+
       <div class="campo">
         <label for="descripcion">Descripción <span class="opcional">opcional</span></label>
         <textarea id="descripcion" name="descripcion" [(ngModel)]="descripcion" [maxlength]="MAX_DESCRIPCION"

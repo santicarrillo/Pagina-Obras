@@ -251,3 +251,71 @@ h1 {
     grid-column: 2;
   }
 }
+
+/* ---------- Envío ---------- */
+
+.item-envio {
+  font-size: 0.82rem;
+  color: rgba(245, 238, 232, 0.5);
+}
+
+.nota-envio {
+  margin: 12px 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: rgba(245, 238, 232, 0.55);
+}
+
+.envio-form {
+  max-width: 720px;
+  margin: 8px 0 48px;
+  padding: 32px;
+  border: 1px solid rgba(201, 170, 109, 0.2);
+  background: rgba(245, 238, 232, 0.02);
+  scroll-margin-top: 96px;
+}
+
+.envio-form h2 {
+  margin: 0 0 8px;
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+  font-size: 1.4rem;
+}
+
+.envio-intro {
+  margin: 0 0 28px;
+  color: rgba(245, 238, 232, 0.6);
+  font-size: 0.92rem;
+}
+
+.envio-form select {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(201, 170, 109, 0.3);
+  color: #f4ebdf;
+  font: inherit;
+  font-size: 1rem;
+  padding: 8px 0;
+  outline: none;
+}
+
+.envio-form select option {
+  background: #17140f;
+  color: #f4ebdf;
+}
+
+.envio-form select:focus {
+  border-bottom-color: #d8bd8a;
+}
+
+.envio-form .fila-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 26px;
+}
+
+@media (max-width: 560px) {
+  .envio-form {
+    padding: 22px 18px;
+  }
+}

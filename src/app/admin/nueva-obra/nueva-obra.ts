@@ -34,6 +34,7 @@ export class NuevaObra implements OnDestroy {
   ancho: number | null = null;
   anio: number | null = null;
   precio: number | null = null;
+  envio: number | null = null;
   descripcion = '';
 
   intentoEnviar = signal(false);
@@ -109,6 +110,10 @@ export class NuevaObra implements OnDestroy {
     return this.precio !== null && Number.isInteger(this.precio) && this.precio > 0;
   }
 
+  get envioValido() {
+    return this.envio !== null && Number.isInteger(this.envio) && this.envio >= 0 && this.envio <= 10000000;
+  }
+
   get anioValido() {
     return this.anio === null || (Number.isInteger(this.anio) && this.anio >= 1800 && this.anio <= this.anioActual);
   }
@@ -120,7 +125,7 @@ export class NuevaObra implements OnDestroy {
 
   get formularioValido() {
     return !!this.archivo() && this.tituloValido && this.tecnicaValida
-      && this.precioValido && this.anioValido && this.medidasValidas
+      && this.precioValido && this.envioValido && this.anioValido && this.medidasValidas
       && this.descripcion.length <= this.MAX_DESCRIPCION;
   }
 
@@ -147,6 +152,7 @@ export class NuevaObra implements OnDestroy {
         medidas: this.alto && this.ancho ? `${this.alto} × ${this.ancho} cm` : '',
         anio: this.anio,
         precio: this.precio!,
+        envio: this.envio!,
         descripcion: this.descripcion.trim(),
         imagenUrl
       });

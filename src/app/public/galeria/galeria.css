@@ -98,3 +98,11 @@ h1 {
     gap: 36px 16px;
   }
 }
+.aviso-ok {
+  margin: 0 0 32px;
+  padding: 12px 16px;
+  border-left: 2px solid #9fc28a;
+  background: rgba(159, 194, 138, 0.07);
+  color: #cfe3c2;
+  line-height: 1.6;
+}
