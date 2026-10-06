@@ -1,0 +1,1 @@
+import{H as Ry,On as wa,jn as xv,wt as ba}from"./chunk-Dleop7V9.js";var i=class t{static ɵfac=function(e){return new(e||t)};static ɵcmp=Ry({type:t,selectors:[[`app-checkout`]],decls:2,vars:0,template:function(e,m){e&1&&(wa(0,`p`),xv(1,`checkout works!`),ba())},encapsulation:2})};export{i as Checkout};

@@ -1,1 +1,0 @@
-import{$ as Tv,Q as Ta,Sn as wy,b as Da}from"./chunk-Dvj4opc-.js";var i=class t{static ɵfac=function(e){return new(e||t)};static ɵcmp=wy({type:t,selectors:[[`app-checkout`]],decls:2,vars:0,template:function(e,m){e&1&&(Da(0,`p`),Tv(1,`checkout works!`),Ta())},encapsulation:2})};export{i as Checkout};
