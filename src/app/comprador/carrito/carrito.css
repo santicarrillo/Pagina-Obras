@@ -337,3 +337,20 @@ h1 {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* Calle ancha, número y piso angostos */
+.envio-form .fila-direccion {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 26px;
+}
+
+@media (max-width: 560px) {
+  .envio-form .fila-direccion {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .envio-form .fila-direccion .campo:first-child {
+    grid-column: 1 / -1;
+  }
+}

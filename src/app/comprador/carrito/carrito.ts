@@ -11,6 +11,20 @@ const PESOS = new Intl.NumberFormat('es-AR', {
 
 const CLAVE_ENVIO = 'anverso-datos-envio';
 
+// Lo que completa el comprador. Calle, número y piso van separados para que
+// sea fácil de completar; al servidor se le manda la dirección ya armada.
+interface FormEnvio {
+  nombre: string;
+  telefono: string;
+  calle: string;
+  numero: string;
+  pisoDepto: string;
+  ciudad: string;
+  provincia: string;
+  codigoPostal: string;
+  notas: string;
+}
+
 interface GrupoArtista {
   artistId: string;
   artistaNombre: string;
@@ -42,7 +56,7 @@ export class CarritoPagina implements OnInit {
   habilitados = signal<Record<string, boolean>>({});
 
   // Datos de envío: se recuerdan en este navegador para la próxima compra
-  datos: DatosEnvio = this.leerDatos();
+  datos: FormEnvio = this.leerDatos();
   intentoPagar = signal(false);
 
   // Cada pago va a la cuenta de un solo artista, por eso se agrupa
@@ -101,7 +115,8 @@ export class CarritoPagina implements OnInit {
     return {
       nombre: !this.largo(d.nombre, 3, 80),
       telefono: !/^[\d\s()+-]{6,20}$/.test(d.telefono.trim()),
-      direccion: !this.largo(d.direccion, 4, 120),
+      calle: !this.largo(d.calle, 2, 80),
+      numero: !/^[A-Za-z0-9\s\/-]{1,10}$/.test(d.numero.trim()),
       ciudad: !this.largo(d.ciudad, 2, 60),
       provincia: !PROVINCIAS.includes(d.provincia),
       codigoPostal: !/^[A-Za-z0-9]{4,8}$/.test(d.codigoPostal.trim())
@@ -109,7 +124,8 @@ export class CarritoPagina implements OnInit {
   }
 
   get datosValidos() {
-    return !Object.values(this.errores).some(Boolean) && this.datos.notas.length <= 200;
+    return !Object.values(this.errores).some(Boolean)
+      && this.datos.pisoDepto.length <= 30 && this.datos.notas.length <= 200;
   }
 
   irADatos() {
@@ -136,16 +152,17 @@ export class CarritoPagina implements OnInit {
       return;
     }
 
+    const piso = this.datos.pisoDepto.trim();
     const envio: DatosEnvio = {
       nombre: this.datos.nombre.trim(),
       telefono: this.datos.telefono.trim(),
-      direccion: this.datos.direccion.trim(),
+      direccion: `${this.datos.calle.trim()} ${this.datos.numero.trim()}${piso ? `, ${piso}` : ''}`,
       ciudad: this.datos.ciudad.trim(),
       provincia: this.datos.provincia,
       codigoPostal: this.datos.codigoPostal.trim().toUpperCase(),
       notas: this.datos.notas.trim()
     };
-    this.guardarDatos(envio);
+    this.guardarDatos(this.datos);
 
     this.pagando.set(grupo.artistId);
     try {
@@ -161,20 +178,24 @@ export class CarritoPagina implements OnInit {
     }
   }
 
-  private leerDatos(): DatosEnvio {
-    const vacio: DatosEnvio = {
+  private leerDatos(): FormEnvio {
+    const vacio: FormEnvio = {
       nombre: this.auth?.usuario()?.displayName ?? '',
-      telefono: '', direccion: '', ciudad: '', provincia: '', codigoPostal: '', notas: ''
+      telefono: '', calle: '', numero: '', pisoDepto: '',
+      ciudad: '', provincia: '', codigoPostal: '', notas: ''
     };
     try {
-      const guardado = JSON.parse(localStorage.getItem(CLAVE_ENVIO) ?? 'null');
-      return guardado ? { ...vacio, ...guardado } : vacio;
+      const g = JSON.parse(localStorage.getItem(CLAVE_ENVIO) ?? 'null');
+      if (!g) return vacio;
+      // Datos guardados con el formato viejo (dirección todo junto): se pasan a "calle"
+      const calle = g.calle ?? g.direccion ?? '';
+      return { ...vacio, ...g, calle };
     } catch {
       return vacio;
     }
   }
 
-  private guardarDatos(d: DatosEnvio) {
+  private guardarDatos(d: FormEnvio) {
     try {
       localStorage.setItem(CLAVE_ENVIO, JSON.stringify(d));
     } catch {

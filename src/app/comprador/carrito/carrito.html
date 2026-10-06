@@ -118,12 +118,25 @@
           </div>
         </div>
 
-        <div class="campo" [class.con-error]="intentoPagar() && errores.direccion">
-          <label for="env-dir">Dirección</label>
-          <input id="env-dir" name="direccion" [(ngModel)]="datos.direccion" maxlength="120" autocomplete="street-address" placeholder="Calle, número, piso y depto" />
-          @if (intentoPagar() && errores.direccion) {
-            <span class="error">Poné la calle y el número.</span>
-          }
+        <div class="fila-direccion">
+          <div class="campo" [class.con-error]="intentoPagar() && errores.calle">
+            <label for="env-calle">Calle</label>
+            <input id="env-calle" name="calle" [(ngModel)]="datos.calle" maxlength="80" autocomplete="address-line1" placeholder="Av. Santa Fe" />
+            @if (intentoPagar() && errores.calle) {
+              <span class="error">Poné la calle.</span>
+            }
+          </div>
+          <div class="campo" [class.con-error]="intentoPagar() && errores.numero">
+            <label for="env-numero">Número</label>
+            <input id="env-numero" name="numero" [(ngModel)]="datos.numero" maxlength="10" inputmode="numeric" placeholder="1234" />
+            @if (intentoPagar() && errores.numero) {
+              <span class="error">Poné el número.</span>
+            }
+          </div>
+          <div class="campo">
+            <label for="env-piso">Piso y depto <span class="opcional">opcional</span></label>
+            <input id="env-piso" name="pisoDepto" [(ngModel)]="datos.pisoDepto" maxlength="30" autocomplete="address-line2" placeholder="3° B" />
+          </div>
         </div>
 
         <div class="fila-campos">
@@ -157,7 +170,7 @@
 
         <div class="campo">
           <label for="env-notas">Aclaraciones <span class="opcional">opcional</span></label>
-          <input id="env-notas" name="notas" [(ngModel)]="datos.notas" maxlength="200" placeholder="Horario, timbre, entre calles..." />
+          <input id="env-notas" name="notas" [(ngModel)]="datos.notas" maxlength="200" placeholder="Timbre, horario, entre calles..." />
         </div>
       </form>
     </section>
