@@ -39,6 +39,11 @@ const MP_API = 'https://api.mercadopago.com';
 // Utilidades
 // ---------------------------------------------------------------------------
 
+// Se limpian espacios, saltos de línea y comillas que se cuelan al copiar y pegar
+const limpiar = (v) => String(v ?? '').trim().replace(/^["']|["']$/g, '').trim();
+const clientId = () => limpiar(MP_CLIENT_ID.value());
+const clientSecret = () => limpiar(MP_CLIENT_SECRET.value());
+
 async function mpFetch(ruta, { token, method = 'GET', body, headers = {} } = {}) {
   const res = await fetch(`${MP_API}${ruta}`, {
     method,
@@ -85,8 +90,8 @@ async function tokenDelArtista(uid) {
     const t = await mpFetch('/oauth/token', {
       method: 'POST',
       body: {
-        client_id: MP_CLIENT_ID.value(),
-        client_secret: MP_CLIENT_SECRET.value(),
+        client_id: clientId(),
+        client_secret: clientSecret(),
         grant_type: 'refresh_token',
         refresh_token: cuenta.refreshToken
       }
@@ -119,9 +124,10 @@ exports.mpConectarUrl = onCall(async (request) => {
 
   const state = crypto.randomBytes(24).toString('hex');
   await db.doc(`mp_oauth_states/${state}`).set({ uid, creadoEn: FieldValue.serverTimestamp() });
+  logger.info('Link de conexión creado', { uid });
 
   const url = new URL('https://auth.mercadopago.com.ar/authorization');
-  url.searchParams.set('client_id', MP_CLIENT_ID.value());
+  url.searchParams.set('client_id', clientId());
   url.searchParams.set('response_type', 'code');
   url.searchParams.set('platform_id', 'mp');
   url.searchParams.set('state', state);
@@ -136,6 +142,13 @@ exports.mpConectarUrl = onCall(async (request) => {
 exports.mpOauthCallback = onRequest({ secrets: [MP_CLIENT_SECRET] }, async (req, res) => {
   const volver = (resultado) => res.redirect(`${WEB_URL.value()}/admin/obras?mp=${resultado}`);
   const { code, state, error } = req.query;
+  // Se registra qué llegó (sin los valores, que son privados) para poder diagnosticar
+  logger.info('Vuelta de Mercado Pago', {
+    parametros: Object.keys(req.query),
+    tieneCode: !!code,
+    tieneState: !!state,
+    error: error ?? null
+  });
 
   if (error || !code || !state) {
     logger.warn('OAuth cancelado o incompleto', { error });
@@ -143,20 +156,26 @@ exports.mpOauthCallback = onRequest({ secrets: [MP_CLIENT_SECRET] }, async (req,
   }
 
   try {
-    const stateRef = db.doc(`mp_oauth_states/${state}`);
+    const stateRef = db.doc(`mp_oauth_states/${String(state)}`);
     const stateSnap = await stateRef.get();
-    if (!stateSnap.exists) return volver('error');
+    if (!stateSnap.exists) {
+      logger.warn('State inexistente: link ya usado o inválido', { largoState: String(state).length });
+      return volver('error');
+    }
     const { uid, creadoEn } = stateSnap.data();
     await stateRef.delete();
 
     // El link de autorización vale 15 minutos
-    if (!creadoEn || Date.now() - creadoEn.toMillis() > 15 * 60 * 1000) return volver('vencido');
+    if (!creadoEn || Date.now() - creadoEn.toMillis() > 15 * 60 * 1000) {
+      logger.warn('Link de autorización vencido', { uid });
+      return volver('vencido');
+    }
 
     const t = await mpFetch('/oauth/token', {
       method: 'POST',
       body: {
-        client_id: MP_CLIENT_ID.value(),
-        client_secret: MP_CLIENT_SECRET.value(),
+        client_id: clientId(),
+        client_secret: clientSecret(),
         grant_type: 'authorization_code',
         code,
         redirect_uri: REDIRECT_URI
@@ -168,9 +187,18 @@ exports.mpOauthCallback = onRequest({ secrets: [MP_CLIENT_SECRET] }, async (req,
       conectado: true,
       conectadoEn: FieldValue.serverTimestamp()
     });
+    logger.info('Artista conectado a Mercado Pago', { uid });
     return volver('conectado');
   } catch (e) {
-    logger.error('Error en OAuth de Mercado Pago', { error: e.message, datos: e.datos });
+    // Solo largos y formato, nunca los valores: sirve para detectar un dato mal copiado
+    logger.error('Error en OAuth de Mercado Pago', {
+      error: e.message,
+      datos: e.datos,
+      largoClientId: clientId().length,
+      clientIdSoloNumeros: /^\d+$/.test(clientId()),
+      largoSecretOriginal: String(MP_CLIENT_SECRET.value() ?? '').length,
+      largoSecretLimpio: clientSecret().length
+    });
     return volver('error');
   }
 });
