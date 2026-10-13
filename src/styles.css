@@ -184,3 +184,22 @@ select:-webkit-autofill {
   box-shadow: 0 0 0 1000px #100e0a inset;
   transition: background-color 9999s ease-out 0s;
 }
+
+/* Aviso chico de "al continuar aceptás..." debajo de botones importantes */
+.nota-legal {
+  margin: 12px 0 0;
+  color: rgba(245, 238, 232, 0.45);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.nota-legal a {
+  color: rgba(245, 238, 232, 0.7);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(245, 238, 232, 0.25);
+}
+
+.nota-legal a:hover {
+  color: #d8bd8a;
+  border-bottom-color: currentColor;
+}
