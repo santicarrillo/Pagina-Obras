@@ -1,11 +1,47 @@
-cartel-404 {
+.cartel-404 {
+  min-height: 62vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 60px 20px;
+  padding: 80px 20px;
   text-align: center;
 }
-.codigo { font-size: 48px; font-weight: 500; margin: 0; }
-.mensaje { color: #666; margin: 0 0 12px; }
+
+.codigo {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(5rem, 18vw, 9rem);
+  font-weight: 400;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(216, 189, 138, 0.55);
+  letter-spacing: 0.04em;
+}
+
+h1 {
+  margin: 18px 0 12px;
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  color: #f4ebdf;
+}
+
+.mensaje {
+  margin: 0 0 32px;
+  max-width: 46ch;
+  color: rgba(245, 238, 232, 0.6);
+  line-height: 1.7;
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.acciones .btn-primario {
+  align-self: auto;
+}

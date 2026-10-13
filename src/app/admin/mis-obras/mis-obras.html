@@ -16,6 +16,10 @@
     <p class="aviso-error" role="alert">{{ error() }}</p>
   }
 
+  @if (avisoEdicion()) {
+    <p class="aviso-ok" role="status">{{ avisoEdicion() }}</p>
+  }
+
   @if (avisoMp()) {
     <p class="aviso-ok" role="status">{{ avisoMp() }}</p>
   }
@@ -69,12 +73,13 @@
           </div>
           @if (obra.estado !== 'vendida') {
             <div class="acciones">
+              <a [routerLink]="['/admin/obras', obra.id, 'editar']" class="btn-accion-chico">Editar</a>
               @if (obra.estado === 'publicada' || obra.estado === 'pausada') {
-                <button type="button" class="eliminar" (click)="alternarPausa(obra)" [disabled]="cambiando() === obra.id">
+                <button type="button" class="btn-accion-chico" (click)="alternarPausa(obra)" [disabled]="cambiando() === obra.id">
                   {{ obra.estado === 'pausada' ? 'Volver a publicar' : 'Pausar' }}
                 </button>
               }
-              <button type="button" class="eliminar" (click)="eliminar(obra)" [disabled]="borrando() === obra.id">
+              <button type="button" class="btn-accion-chico peligro" (click)="eliminar(obra)" [disabled]="borrando() === obra.id">
                 {{ borrando() === obra.id ? 'Eliminando...' : 'Eliminar' }}
               </button>
             </div>

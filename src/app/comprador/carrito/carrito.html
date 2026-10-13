@@ -39,7 +39,7 @@
                 <a class="titulo" [routerLink]="['/obra', item.id]">{{ item.titulo }}</a>
                 <a class="artista" [routerLink]="['/artista', item.artistId]">{{ item.artistaNombre }}</a>
                 <span class="item-envio">{{ textoEnvio(item) }}</span>
-                <button type="button" class="quitar" (click)="quitar(item)">Quitar</button>
+                <button type="button" class="btn-accion-chico peligro quitar" (click)="quitar(item)">Quitar</button>
               </div>
               <p class="item-precio">{{ precio(item.precio) }}</p>
             </li>

@@ -72,6 +72,11 @@ export const routes: Routes = [
           import('./admin/mis-obras/mis-obras').then(m => m.MisObras)
       },
       {
+        path: 'obras/:id/editar',
+        loadComponent: () =>
+          import('./admin/editar-obra/editar-obra').then(m => m.EditarObra)
+      },
+      {
         path: 'obras/nueva',
         loadComponent: () =>
           import('./admin/nueva-obra/nueva-obra').then(m => m.NuevaObra)

@@ -21,6 +21,7 @@ export class MisObras implements OnInit {
   conectando = signal(false);
   avisoMp = signal('');
   errorMp = signal('');
+  avisoEdicion = signal('');
 
   obras = signal<Obra[]>([]);
   cargando = signal(true);
@@ -47,6 +48,9 @@ export class MisObras implements OnInit {
 
   async ngOnInit() {
     this.revisarMercadoPago();
+    if (this.route.snapshot.queryParamMap.get('editada')) {
+      this.avisoEdicion.set('Listo, los cambios de la obra quedaron guardados.');
+    }
     try {
       this.obras.set(await this.artworks.misObras());
     } catch {

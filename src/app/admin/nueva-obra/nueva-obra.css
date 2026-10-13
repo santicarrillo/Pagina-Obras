@@ -108,23 +108,8 @@ h1 {
 
 .acciones-foto {
   display: flex;
-  gap: 20px;
+  gap: 8px;
   margin-top: 14px;
-}
-
-.link-accion {
-  background: none;
-  border: 0;
-  padding: 0;
-  color: #d8bd8a;
-  font: inherit;
-  font-size: 0.88rem;
-  cursor: pointer;
-  border-bottom: 1px solid rgba(201, 170, 109, 0.35);
-}
-
-.link-accion:hover {
-  border-bottom-color: #c9aa6d;
 }
 
 .consejo,

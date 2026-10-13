@@ -93,6 +93,19 @@ export class Artworks {
     }
   }
 
+  // Editar los datos de una obra. La foto no se cambia (si quiere otra, la borra y la sube de nuevo).
+  async actualizar(id: string, datos: Omit<DatosObra, 'imagenUrl'>) {
+    await updateDoc(doc(this.db, 'artworks', id), {
+      titulo: datos.titulo,
+      tecnica: datos.tecnica,
+      medidas: datos.medidas,
+      anio: datos.anio,
+      precio: datos.precio,
+      envio: datos.envio,
+      descripcion: datos.descripcion
+    });
+  }
+
   // Sacar de la venta o volver a publicar (solo entre publicada y pausada)
   async cambiarEstado(id: string, estado: 'publicada' | 'pausada') {
     await updateDoc(doc(this.db, 'artworks', id), { estado });

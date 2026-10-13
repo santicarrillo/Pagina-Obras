@@ -10,11 +10,11 @@
           <img [src]="vistaPrevia()" alt="Vista previa de la obra" />
         </figure>
         <div class="acciones-foto">
-          <label class="link-accion">
+          <label class="btn-accion-chico">
             Cambiar foto
             <input type="file" accept="image/jpeg,image/png,image/webp" (change)="elegirArchivo($event)" hidden [disabled]="ocupado" />
           </label>
-          <button type="button" class="link-accion" (click)="quitarImagen()" [disabled]="ocupado">Quitar</button>
+          <button type="button" class="btn-accion-chico peligro" (click)="quitarImagen()" [disabled]="ocupado">Quitar</button>
         </div>
       } @else {
         <label class="marco zona-carga"

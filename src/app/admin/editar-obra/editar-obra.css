@@ -1,0 +1,10 @@
+.cargando {
+  color: rgba(245, 238, 232, 0.55);
+}
+
+.botones-form {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}

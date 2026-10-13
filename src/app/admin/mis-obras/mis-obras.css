@@ -136,23 +136,6 @@ h1 {
 .estado[data-estado='procesando'] { color: #d8bd8a; }
 .estado[data-estado='rechazada'] { color: #e3a08f; }
 
-.eliminar {
-  align-self: flex-start;
-  background: none;
-  border: 0;
-  padding: 0;
-  color: rgba(245, 238, 232, 0.45);
-  font: inherit;
-  font-size: 0.82rem;
-  cursor: pointer;
-  border-bottom: 1px solid transparent;
-}
-
-.eliminar:hover:not(:disabled) {
-  color: #e3a08f;
-  border-bottom-color: currentColor;
-}
-
 .editar-perfil {
   font-family: inherit;
   font-style: normal;
@@ -224,7 +207,9 @@ h1 {
 
 .acciones {
   display: flex;
-  gap: 18px;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .envio {

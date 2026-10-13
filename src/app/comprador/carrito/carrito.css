@@ -147,19 +147,6 @@ h1 {
 
 .quitar {
   margin-top: 14px;
-  padding: 0 0 2px;
-  background: none;
-  border: 0;
-  border-bottom: 1px solid transparent;
-  color: rgba(245, 238, 232, 0.45);
-  font: inherit;
-  font-size: 0.82rem;
-  cursor: pointer;
-}
-
-.quitar:hover {
-  color: #e3a08f;
-  border-bottom-color: currentColor;
 }
 
 .item-precio {

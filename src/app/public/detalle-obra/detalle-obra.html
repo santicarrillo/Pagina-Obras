@@ -52,8 +52,9 @@
         } @else if (esMia) {
           <p class="estado-obra">Esta obra es tuya. Así la ven los compradores.</p>
           <div class="acciones-duenio">
-            <a routerLink="/admin/obras" class="link-panel">Ir a mis obras</a>
-            <button type="button" class="btn-eliminar" (click)="eliminar()" [disabled]="borrando()">
+            <a [routerLink]="['/admin/obras', o.id, 'editar']" class="btn-accion-chico">Editar obra</a>
+            <a routerLink="/admin/obras" class="btn-accion-chico">Ir a mis obras</a>
+            <button type="button" class="btn-accion-chico peligro" (click)="eliminar()" [disabled]="borrando()">
               {{ borrando() ? 'Eliminando...' : 'Eliminar obra' }}
             </button>
           </div>

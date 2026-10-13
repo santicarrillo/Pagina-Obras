@@ -115,3 +115,72 @@ body {
   padding: 4px 0 4px 12px;
   margin: 0;
 }
+
+/* ---------- Botones de acción (editar, pausar, eliminar, quitar...) ----------
+   Se ven como botón de verdad, pero discretos para no competir con las obras. */
+
+.btn-accion-chico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid rgba(216, 189, 138, 0.45);
+  border-radius: 2px;
+  background: rgba(216, 189, 138, 0.06);
+  color: #f4ebdf;
+  font: inherit;
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-accion-chico:hover:not(:disabled) {
+  border-color: #d8bd8a;
+  background: rgba(216, 189, 138, 0.16);
+}
+
+.btn-accion-chico.peligro {
+  border-color: rgba(227, 160, 143, 0.5);
+  background: rgba(227, 160, 143, 0.06);
+  color: #f1c2b6;
+}
+
+.btn-accion-chico.peligro:hover:not(:disabled) {
+  border-color: #e3a08f;
+  background: rgba(227, 160, 143, 0.16);
+  color: #fff;
+}
+
+.btn-accion-chico:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn-accion-chico:focus-visible {
+  outline: 2px solid #c9aa6d;
+  outline-offset: 2px;
+}
+
+.btn-accion-chico svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+/* El autocompletar del navegador pintaba los campos de celeste */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #f4ebdf;
+  caret-color: #f4ebdf;
+  -webkit-box-shadow: 0 0 0 1000px #100e0a inset;
+  box-shadow: 0 0 0 1000px #100e0a inset;
+  transition: background-color 9999s ease-out 0s;
+}
