@@ -1,0 +1,1 @@
+import{H as Pv,_t as _a,bt as ba,y as Fy}from"./chunk-HNMMRHFg.js";var i=class t{static ɵfac=function(e){return new(e||t)};static ɵcmp=Fy({type:t,selectors:[[`app-checkout`]],decls:2,vars:0,template:function(e,m){e&1&&(ba(0,`p`),Pv(1,`checkout works!`),_a())},encapsulation:2})};export{i as Checkout};
