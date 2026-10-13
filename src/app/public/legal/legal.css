@@ -1,0 +1,86 @@
+.legal-pagina {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 72px 24px 96px;
+  color: rgba(245, 238, 232, 0.78);
+  line-height: 1.75;
+}
+
+.legal-pagina .volanta {
+  margin: 0 0 10px;
+  color: #d8bd8a;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.legal-pagina h1 {
+  margin: 0 0 8px;
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  color: #f4ebdf;
+  line-height: 1.15;
+}
+
+.legal-pagina .fecha {
+  margin: 0 0 40px;
+  color: rgba(245, 238, 232, 0.45);
+  font-size: 0.85rem;
+}
+
+.legal-pagina .resumen {
+  margin: 0 0 48px;
+  padding: 20px 24px;
+  border-left: 2px solid #c9aa6d;
+  background: rgba(216, 189, 138, 0.05);
+}
+
+.legal-pagina .resumen p { margin: 0; }
+
+.legal-pagina h2 {
+  margin: 44px 0 12px;
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+  font-size: 1.3rem;
+  color: #f4ebdf;
+}
+
+.legal-pagina p { margin: 0 0 14px; }
+
+.legal-pagina ul {
+  margin: 0 0 14px;
+  padding-left: 20px;
+}
+
+.legal-pagina li { margin-bottom: 8px; }
+
+.legal-pagina strong { color: #f4ebdf; font-weight: 500; }
+
+.legal-pagina a {
+  color: #d8bd8a;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(216, 189, 138, 0.35);
+}
+
+.legal-pagina a:hover { border-bottom-color: currentColor; }
+
+.legal-pagina a.btn-primario,
+.legal-pagina a.btn-accion-chico { border-bottom: 0; }
+
+.legal-pagina a.btn-primario { color: #1a150e; }
+
+.legal-pagina .nota-ley {
+  margin-top: 40px;
+  font-size: 0.85rem;
+  color: rgba(245, 238, 232, 0.5);
+}
+
+.legal-pagina .relacionados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 56px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(245, 238, 232, 0.1);
+}

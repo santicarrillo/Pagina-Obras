@@ -93,6 +93,19 @@ export const routes: Routes = [
       }
     ]
   },
+  // Legales
+  {
+    path: 'terminos',
+    loadComponent: () => import('./public/legal/terminos/terminos').then(m => m.Terminos)
+  },
+  {
+    path: 'privacidad',
+    loadComponent: () => import('./public/legal/privacidad/privacidad').then(m => m.Privacidad)
+  },
+  {
+    path: 'arrepentimiento',
+    loadComponent: () => import('./public/legal/arrepentimiento/arrepentimiento').then(m => m.Arrepentimiento)
+  },
   { path: '404', loadComponent: () => import('./public/not-found/not-found').then(m => m.NotFound) },
   { path: '**', redirectTo: '404' }
 ];

@@ -124,8 +124,34 @@ details p {
 .legal {
   max-width: 1280px;
   margin: 48px auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px 28px;
   color: rgba(245, 238, 232, 0.35);
   font-size: 0.78rem;
+}
+
+.legal p { margin: 0; }
+
+.links-legales {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+}
+
+.links-legales a {
+  color: rgba(245, 238, 232, 0.55);
+  text-decoration: none;
+}
+
+.links-legales a:hover { color: #d8bd8a; }
+
+/* La ley pide que el botón de arrepentimiento se vea fácil */
+.links-legales .arrepentimiento {
+  color: #d8bd8a;
+  border-bottom: 1px solid rgba(216, 189, 138, 0.35);
 }
 
 @media (max-width: 860px) {

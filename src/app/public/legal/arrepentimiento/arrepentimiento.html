@@ -1,0 +1,38 @@
+<article class="legal-pagina">
+  <p class="volanta">Legales</p>
+  <h1>Botón de arrepentimiento</h1>
+  <p class="fecha">Última actualización: {{ legal.actualizado }}</p>
+
+  <p>
+    Si compraste una obra en Anverso, tenés <strong>10 días corridos</strong> desde que la recibiste para
+    cancelar la compra, sin tener que explicar por qué. Es un derecho que te da la ley (artículo 34 de la
+    Ley 24.240 de Defensa del Consumidor y artículo 1110 del Código Civil y Comercial).
+  </p>
+
+  <h2>Cómo pedirlo</h2>
+  <ul>
+    <li>Tocá el botón de abajo: se abre un mail ya armado para que completes tus datos.</li>
+    <li>Contanos con qué mail compraste y qué obra querés devolver.</li>
+    <li>Te respondemos dentro de las 24 horas con un código de identificación de tu pedido y los pasos para devolver la obra.</li>
+  </ul>
+
+  <p>
+    <a [href]="mailArrepentimiento" class="btn-primario">Quiero arrepentirme de mi compra</a>
+  </p>
+  <p>
+    Si el botón no te abre el mail, escribinos directamente a
+    <a [href]="'mailto:' + legal.mail">{{ legal.mail }}</a> con el asunto "Botón de arrepentimiento".
+  </p>
+
+  <h2>Qué tenés que saber</h2>
+  <ul>
+    <li>La obra tiene que volver en el mismo estado en que la recibiste, con su embalaje si es posible.</li>
+    <li>Los gastos de la devolución no corren por tu cuenta.</li>
+    <li>Cuando el artista recibe la obra, se te devuelve el total pagado por el mismo medio, a través de Mercado Pago.</li>
+  </ul>
+
+  <nav class="relacionados" aria-label="Otras páginas legales">
+    <a routerLink="/terminos" class="btn-accion-chico">Términos y condiciones</a>
+    <a routerLink="/privacidad" class="btn-accion-chico">Política de privacidad</a>
+  </nav>
+</article>

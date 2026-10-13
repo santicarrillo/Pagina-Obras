@@ -66,5 +66,9 @@
     <button type="submit" class="btn-primario" [disabled]="guardando()">
       {{ guardando() ? 'Activando...' : 'Activar perfil de artista' }}
     </button>
+    <p class="nota-legal">
+      Al activar tu perfil aceptás los <a routerLink="/terminos">Términos y condiciones</a>:
+      solo podés publicar obras originales tuyas, y te encargás del envío de lo que vendas.
+    </p>
   </form>
 </section>

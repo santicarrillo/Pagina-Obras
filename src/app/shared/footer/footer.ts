@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Auth } from '../../core/services/auth';
+import { LEGAL } from '../../core/data/legal';
 
 interface Pregunta {
   pregunta: string;
@@ -16,7 +17,7 @@ interface Pregunta {
 export class Footer {
   auth = inject(Auth);
 
-  readonly email = 'santiago03carrillo@gmail.com';
+  readonly email = LEGAL.mail;
   readonly anio = new Date().getFullYear();
 
   // Para cambiar o sumar preguntas, editá esta lista

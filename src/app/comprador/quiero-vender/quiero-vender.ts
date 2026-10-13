@@ -1,13 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../core/services/auth';
 import { Red } from '../../core/data/redes';
 import { EditorRedes } from '../../shared/editor-redes/editor-redes';
 
 @Component({
   selector: 'app-quiero-vender',
-  imports: [FormsModule, EditorRedes],
+  imports: [FormsModule, EditorRedes, RouterLink],
   templateUrl: './quiero-vender.html',
   styleUrl: './quiero-vender.css'
 })

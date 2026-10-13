@@ -81,6 +81,13 @@
               [disabled]="pagando() !== null || !datosValidos">
               {{ pagando() === grupo.artistId ? 'Yendo a Mercado Pago...' : 'Pagar con Mercado Pago' }}
             </button>
+            @if (datosValidos) {
+              <p class="nota-legal">
+                Al pagar aceptás los <a routerLink="/terminos">Términos</a> y la
+                <a routerLink="/privacidad">Política de privacidad</a>. Tenés 10 días para
+                <a routerLink="/arrepentimiento">arrepentirte</a>.
+              </p>
+            }
             @if (!datosValidos) {
               <a class="falta-envio" href="#datos-envio" (click)="$event.preventDefault(); irADatos()">
                 Completá tus datos de envío para poder pagar ↓
