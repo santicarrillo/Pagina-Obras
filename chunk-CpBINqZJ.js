@@ -1,0 +1,1 @@
+import{B as Na,Y as Sa,lt as Wy,vt as Yv}from"./chunk-Y-55Q7gg.js";var i=class t{static ɵfac=function(e){return new(e||t)};static ɵcmp=Wy({type:t,selectors:[[`app-checkout`]],decls:2,vars:0,template:function(e,m){e&1&&(Na(0,`p`),Yv(1,`checkout works!`),Sa())},encapsulation:2})};export{i as Checkout};
