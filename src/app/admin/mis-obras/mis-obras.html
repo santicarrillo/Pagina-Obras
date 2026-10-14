@@ -27,19 +27,60 @@
     <p class="aviso-error" role="alert">{{ errorMp() }}</p>
   }
 
-  @if (mpConectado() === false) {
-    <div class="banner-mp">
-      <div>
-        <h2>Conectá tu Mercado Pago para empezar a vender</h2>
-        <p>
-          La plata de cada venta te llega directo a tu cuenta. Hasta que la conectes,
-          tus obras se ven en la galería pero no se pueden comprar.
-        </p>
+  @if (mostrarGuia()) {
+    <section class="guia" aria-labelledby="titulo-guia">
+      <div class="guia-head">
+        <div>
+          <p class="guia-volanta">Primeros pasos</p>
+          <h2 id="titulo-guia">Dejá todo listo para vender</h2>
+        </div>
+        <p class="guia-progreso">{{ pasosListos() }} de 3 listos</p>
       </div>
-      <button type="button" class="btn-primario" (click)="conectarMercadoPago()" [disabled]="conectando()">
-        {{ conectando() ? 'Abriendo Mercado Pago...' : 'Conectar Mercado Pago' }}
-      </button>
-    </div>
+      <div class="guia-barra" aria-hidden="true">
+        <span [style.width.%]="pasosListos() / 3 * 100"></span>
+      </div>
+
+      <ol class="pasos">
+        <li class="paso hecho">
+          <span class="marca" aria-hidden="true">✓</span>
+          <div class="paso-texto">
+            <h3>Creaste tu perfil de artista</h3>
+            <p>Es lo que ven los compradores cuando entran a tu página.</p>
+          </div>
+          <a routerLink="/admin/perfil" class="btn-accion-chico">Editar perfil</a>
+        </li>
+
+        <li class="paso" [class.hecho]="mpConectado()" [class.actual]="!mpConectado()">
+          <span class="marca" aria-hidden="true">@if (mpConectado()) {✓} @else {2}</span>
+          <div class="paso-texto">
+            <h3>Conectá tu Mercado Pago</h3>
+            <p>
+              @if (mpConectado()) {
+                Listo: la plata de cada venta te llega directo a tu cuenta.
+              } @else {
+                La plata de cada venta te llega directo a tu cuenta. Sin esto tus obras se ven, pero no se pueden comprar.
+              }
+            </p>
+          </div>
+          @if (!mpConectado()) {
+            <button type="button" class="btn-primario" (click)="conectarMercadoPago()" [disabled]="conectando()">
+              {{ conectando() ? 'Abriendo...' : 'Conectar' }}
+            </button>
+          }
+        </li>
+
+        <li class="paso" [class.hecho]="obras().length > 0" [class.actual]="mpConectado() && obras().length === 0">
+          <span class="marca" aria-hidden="true">@if (obras().length > 0) {✓} @else {3}</span>
+          <div class="paso-texto">
+            <h3>Subí tu primera obra</h3>
+            <p>Una buena foto, el precio y el costo de envío. Aparece en la galería al instante.</p>
+          </div>
+          @if (obras().length === 0) {
+            <a routerLink="/admin/obras/nueva" [class]="mpConectado() ? 'btn-primario' : 'btn-accion-chico'">Agregar obra</a>
+          }
+        </li>
+      </ol>
+    </section>
   } @else if (mpConectado()) {
     <p class="mp-ok">
       ✓ Mercado Pago conectado
@@ -49,13 +90,7 @@
 
   @if (cargando()) {
     <p class="estado-carga">Cargando tus obras...</p>
-  } @else if (obras().length === 0 && !error()) {
-    <div class="vacio">
-      <h2>Todavía no publicaste ninguna obra</h2>
-      <p>Subí una foto, poné el precio y en un minuto aparece en la galería.</p>
-      <a routerLink="/admin/obras/nueva" class="btn-primario">Agregar tu primera obra</a>
-    </div>
-  } @else {
+  } @else if (obras().length > 0) {
     <ul class="grilla">
       @for (obra of obras(); track obra.id) {
         <li class="obra">

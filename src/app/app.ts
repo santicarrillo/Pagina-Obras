@@ -4,10 +4,11 @@ import { Auth } from './core/services/auth';
 import { Carrito } from './core/services/carrito';
 import { Footer } from './shared/footer/footer';
 import { BuscadorArtistas } from './shared/buscador-artistas/buscador-artistas';
+import { FranjaMp } from './shared/franja-mp/franja-mp';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Footer, BuscadorArtistas],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Footer, BuscadorArtistas, FranjaMp],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

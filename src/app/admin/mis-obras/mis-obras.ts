@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Artworks, EstadoObra, Obra } from '../../core/services/artworks';
 import { Auth } from '../../core/services/auth';
@@ -37,6 +37,13 @@ export class MisObras implements OnInit {
   };
 
   cambiando = signal<string | null>(null);
+
+  // Recorrido guiado: se muestra hasta que el artista conecta Mercado Pago y sube su primera obra
+  mostrarGuia = computed(() =>
+    !this.cargando() && !this.error() && this.mpConectado() !== null &&
+    (!this.mpConectado() || this.obras().length === 0)
+  );
+  pasosListos = computed(() => 1 + (this.mpConectado() ? 1 : 0) + (this.obras().length > 0 ? 1 : 0));
 
   private formatoPesos = new Intl.NumberFormat('es-AR', {
     style: 'currency', currency: 'ARS', maximumFractionDigits: 0

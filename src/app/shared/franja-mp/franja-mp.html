@@ -1,0 +1,25 @@
+@if (visible()) {
+  <div class="franja" role="region" aria-label="Aviso de Mercado Pago">
+    <div class="franja-inner">
+      <p class="texto">
+        <span class="punto" aria-hidden="true"></span>
+        @if (error()) {
+          <span class="error">{{ error() }}</span>
+        } @else {
+          Conectá tu Mercado Pago para que te puedan comprar.
+          <span class="detalle">Hasta entonces tus obras se ven, pero no se venden.</span>
+        }
+      </p>
+      <div class="acciones">
+        <button type="button" class="conectar" (click)="conectar()" [disabled]="conectando()">
+          {{ conectando() ? 'Abriendo...' : 'Conectar' }}
+        </button>
+        <button type="button" class="cerrar" (click)="cerrar()" aria-label="Cerrar aviso">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+}
