@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { EMPRESAS, Pedido } from '../../core/services/orders';
 
 const FECHA = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short' });
@@ -29,4 +29,43 @@ export class PasosEnvio {
     const s = this.pedido().seguimiento;
     return s ? EMPRESAS[s.empresa] : null;
   });
+
+  copiado = signal(false);
+  avisoPegar = signal(false);
+  private timer: ReturnType<typeof setTimeout> | undefined;
+
+  // Copia el código al portapapeles. Si viene del botón "Seguir el envío",
+  // el link igual abre la página del correo y avisamos que ya está copiado para pegar.
+  async copiar(codigo: string, alSeguir: boolean) {
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(codigo);
+      ok = true;
+    } catch {
+      ok = copiarALaVieja(codigo);
+    }
+    if (!ok) return;
+    this.copiado.set(true);
+    if (alSeguir) this.avisoPegar.set(true);
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.copiado.set(false), 2000);
+  }
+}
+
+// Para navegadores donde el portapapeles moderno no está disponible
+function copiarALaVieja(texto: string): boolean {
+  try {
+    const area = document.createElement('textarea');
+    area.value = texto;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    const ok = document.execCommand('copy');
+    area.remove();
+    return ok;
+  } catch {
+    return false;
+  }
 }

@@ -81,32 +81,76 @@
 }
 
 .seguimiento {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px 14px;
   margin-top: 14px;
-  padding: 10px 14px;
-  border: 1px solid rgba(201, 170, 109, 0.2);
+  padding: 14px 16px;
+  border: 1px solid rgba(201, 170, 109, 0.22);
   background: rgba(245, 238, 232, 0.03);
   font-size: 0.88rem;
+}
+
+.codigo-fila {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 12px;
 }
 
 .etiqueta {
   color: #a89e8c;
 }
 
-code {
+.seguimiento code {
   font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
-  color: #f4ebdf;
-  letter-spacing: 0.04em;
   user-select: all;
+  color: #f4ebdf;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  word-break: break-all;
 }
 
-.seguimiento a {
-  color: #d8bd8a;
+.acciones-seguimiento {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.btn-seguir {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 2px;
+  background: #d8bd8a;
+  color: #1a150e;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   text-decoration: none;
-  border-bottom: 1px solid rgba(216, 189, 138, 0.35);
+  transition: background 0.2s;
+}
+
+.btn-seguir:hover {
+  background: #fefbf5;
+}
+
+.btn-seguir:focus-visible {
+  outline: 2px solid #c9aa6d;
+  outline-offset: 2px;
+}
+
+.btn-seguir svg {
+  width: 12px;
+  height: 12px;
+}
+
+.aviso-pegar {
+  margin: 10px 0 0;
+  color: #cfe3c2;
+  font-size: 0.8rem;
+  line-height: 1.5;
 }
 
 @media (max-width: 520px) {

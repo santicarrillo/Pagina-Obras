@@ -13,10 +13,26 @@
 @if (pedido().seguimiento; as s) {
   @if (s.codigo) {
     <div class="seguimiento">
-      <span class="etiqueta">{{ empresa()?.nombre }}</span>
-      <code>{{ s.codigo }}</code>
-      @if (empresa()?.url; as url) {
-        <a [href]="url" target="_blank" rel="noopener noreferrer">Seguir el envío ↗</a>
+      <div class="codigo-fila">
+        <span class="etiqueta">{{ empresa()?.nombre }}</span>
+        <code>{{ s.codigo }}</code>
+      </div>
+      <div class="acciones-seguimiento">
+        @if (empresa()?.url; as url) {
+          <a [href]="url" target="_blank" rel="noopener noreferrer" class="btn-seguir"
+             (click)="copiar(s.codigo, true)">
+            Seguir el envío
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h7v7M13 3L5 11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </a>
+        }
+        <button type="button" class="btn-accion-chico" (click)="copiar(s.codigo, false)">
+          {{ copiado() ? '¡Copiado!' : 'Copiar código' }}
+        </button>
+      </div>
+      @if (avisoPegar()) {
+        <p class="aviso-pegar" role="status">
+          Copiamos el código. En la página de {{ empresa()?.nombre }}, pegalo con Ctrl + V (o mantené apretado en el celu).
+        </p>
       }
     </div>
   }
