@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { EMPRESAS, EmpresaEnvio, Pedido, Pedidos } from '../../core/services/orders';
 import { mensajeDeError } from '../../core/services/mercadopago';
 import { PasosEnvio } from '../../shared/pasos-envio/pasos-envio';
+import { ImagenPipe } from '../../shared/imagen.pipe';
 
 const PESOS = new Intl.NumberFormat('es-AR', {
   style: 'currency', currency: 'ARS', maximumFractionDigits: 0
@@ -12,7 +13,7 @@ const FECHA = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'long', 
 
 @Component({
   selector: 'app-mis-pagos',
-  imports: [RouterLink, FormsModule, PasosEnvio],
+  imports: [RouterLink, FormsModule, PasosEnvio, ImagenPipe],
   templateUrl: './mis-pagos.html',
   styleUrl: './mis-pagos.css',
 })

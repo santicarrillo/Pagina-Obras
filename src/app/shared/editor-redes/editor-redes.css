@@ -19,7 +19,7 @@ legend {
 }
 
 .opcional {
-  color: rgba(245, 238, 232, 0.4);
+  color: rgba(245, 238, 232, 0.55);
   font-size: 0.8rem;
   margin-left: 6px;
 }
@@ -64,7 +64,7 @@ input:focus {
   border: 0;
   border-radius: 50%;
   background: none;
-  color: rgba(245, 238, 232, 0.45);
+  color: rgba(245, 238, 232, 0.55);
   font-size: 1.2rem;
   cursor: pointer;
 }
@@ -96,7 +96,7 @@ input:focus {
 }
 
 .ayuda {
-  color: rgba(245, 238, 232, 0.45);
+  color: rgba(245, 238, 232, 0.55);
   font-size: 0.8rem;
 }
 

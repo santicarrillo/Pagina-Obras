@@ -1,10 +1,12 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Auth } from '../../core/services/auth';
 import { Artworks, Obra } from '../../core/services/artworks';
 import { OBRAS_DEMO } from '../../core/data/obras-demo';
 import { Carrito } from '../../core/services/carrito';
 import { Pagos } from '../../core/services/mercadopago';
+import { ImagenPipe } from '../../shared/imagen.pipe';
 
 const PESOS = new Intl.NumberFormat('es-AR', {
   style: 'currency', currency: 'ARS', maximumFractionDigits: 0
@@ -12,7 +14,7 @@ const PESOS = new Intl.NumberFormat('es-AR', {
 
 @Component({
   selector: 'app-detalle-obra',
-  imports: [RouterLink],
+  imports: [RouterLink, ImagenPipe],
   templateUrl: './detalle-obra.html',
   styleUrl: './detalle-obra.css',
 })
@@ -31,7 +33,14 @@ export class DetalleObra {
   borrando = signal(false);
   errorEliminar = signal('');
 
+  private title = inject(Title);
+
   constructor() {
+    // El nombre de la pestaña pasa a ser el de esta obra
+    effect(() => {
+      const x = this.obra();
+      if (x) this.title.setTitle(`${x.titulo} · Anverso`);
+    });
     this.route.paramMap.subscribe(params => this.cargar(params.get('id') ?? ''));
   }
 

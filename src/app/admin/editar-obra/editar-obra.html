@@ -11,7 +11,7 @@
       <!-- Foto (fija) -->
       <div class="columna-foto">
         <figure class="marco con-foto">
-          <img [src]="o.imagenUrl" [alt]="o.titulo" />
+          <img [src]="o.imagenUrl | imagen: 900" [alt]="o.titulo" />
         </figure>
         <p class="consejo">La foto no se puede cambiar. Si querés otra, eliminá la obra y subila de nuevo.</p>
       </div>

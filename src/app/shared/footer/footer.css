@@ -129,7 +129,7 @@ details p {
   justify-content: space-between;
   align-items: center;
   gap: 12px 28px;
-  color: rgba(245, 238, 232, 0.35);
+  color: rgba(245, 238, 232, 0.55);
   font-size: 0.78rem;
 }
 

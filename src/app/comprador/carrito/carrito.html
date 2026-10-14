@@ -33,7 +33,7 @@
           @for (item of grupo.items; track item.id) {
             <li class="item">
               <a class="miniatura" [routerLink]="['/obra', item.id]">
-                <img [src]="item.imagenUrl" [alt]="item.titulo" />
+                <img [src]="item.imagenUrl | imagen: 240" [alt]="item.titulo" />
               </a>
               <div class="item-datos">
                 <a class="titulo" [routerLink]="['/obra', item.id]">{{ item.titulo }}</a>

@@ -117,7 +117,7 @@ h1 {
   font-family: inherit;
   font-style: normal;
   font-size: 0.82rem;
-  color: rgba(245, 238, 232, 0.5);
+  color: rgba(245, 238, 232, 0.55);
   margin-left: 14px;
   text-decoration: none;
   border-bottom: 1px solid rgba(245, 238, 232, 0.2);
@@ -283,7 +283,7 @@ h1 {
 }
 
 .envio {
-  color: rgba(245, 238, 232, 0.5);
+  color: rgba(245, 238, 232, 0.55);
 }
 
 .estado[data-estado='pausada'] { color: rgba(245, 238, 232, 0.5); }

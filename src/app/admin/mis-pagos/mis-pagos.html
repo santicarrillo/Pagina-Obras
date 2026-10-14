@@ -37,7 +37,7 @@
           <ul class="items">
             @for (item of v.items; track item.id) {
               <li class="item">
-                <img [src]="item.imagenUrl" [alt]="item.titulo" />
+                <img [src]="item.imagenUrl | imagen: 240" [alt]="item.titulo" />
                 <p class="titulo">{{ item.titulo }}</p>
               </li>
             }

@@ -1,59 +1,79 @@
-# PaginaParaComprasDeObras
+# Anverso
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.3.
+Galería online de obras únicas de artistas independientes. Cualquier persona puede crear su perfil de artista, publicar sus obras y venderlas; la plata de cada venta le llega directo a su cuenta de Mercado Pago.
 
-## Development server
+Publicada en: https://santicarrillo.github.io/Pagina-Obras/
 
-To start a local development server, run:
+## Cómo está armada
 
-```bash
+| Pieza | Para qué |
+| --- | --- |
+| Angular 22 (`src/`) | La página. Componentes standalone, señales, sin zone.js. |
+| GitHub Pages | Donde se publica la página (rama `gh-pages`). |
+| Firebase Auth | Login con link por mail o con Google. |
+| Firestore | Obras, perfiles, pedidos. Protegida por `firestore.rules`. |
+| Cloud Functions (`functions/index.js`) | Todo lo que mueve plata: conectar Mercado Pago, crear pagos, confirmar ventas, devoluciones, envíos y mails. Región `southamerica-east1`. |
+| Cloudinary | Las fotos de las obras (cuenta `xmmd0cpx`, preset `obras_arte`). |
+| Mercado Pago | Cobros en modo marketplace: cada artista conecta su cuenta por OAuth. |
+
+Carpetas de la página:
+
+- `public/`: lo que ve cualquiera (galería, obra, artista, login, legales, 404).
+- `comprador/`: carrito, mis pedidos, mi cuenta, quiero vender.
+- `admin/`: panel del artista (mis obras, nueva/editar obra, mis ventas, perfil).
+- `shared/`: piezas que se usan en varias pantallas.
+- `core/`: servicios (Firebase, obras, pedidos, carrito, Mercado Pago) y datos fijos.
+
+## Levantar la página en tu compu
+
+```powershell
+npm install
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Abrí http://localhost:4200. En modo desarrollo aparecen obras y artistas de prueba (`core/data/obras-demo.ts`); en la versión publicada no.
 
-## Code scaffolding
+## Publicar la página
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```powershell
+ng deploy --base-href=/Pagina-Obras/
+git add .
+git commit -m "Qué cambió"
+git push
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Publicar funciones y reglas
 
-```bash
-ng generate --help
+```powershell
+cd functions
+npm install
+cd ..
+$env:FUNCTIONS_DISCOVERY_TIMEOUT=60
+firebase deploy --only functions,firestore:rules
 ```
 
-## Building
+## Configuración y secretos
 
-To build the project run:
+`functions/.env` solo tiene datos públicos:
 
-```bash
-ng build
+```
+MP_CLIENT_ID=...
+WEB_URL=https://santicarrillo.github.io/Pagina-Obras
+COMISION_PORCENTAJE=0
+SMTP_USER=mail-de-anverso@gmail.com
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Los secretos **nunca** van al repo ni se pegan en ningún chat. Se cargan desde un archivo fuera del proyecto y después se borra:
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
+```powershell
+firebase functions:secrets:set MP_CLIENT_SECRET --data-file C:\ruta\fuera\del\proyecto\secreto.txt
+firebase functions:secrets:set SMTP_PASS --data-file C:\ruta\fuera\del\proyecto\mail.txt
 ```
 
-## Running end-to-end tests
+## Cómo funciona una venta
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+1. El comprador arma el carrito (un pago por artista) y completa sus datos de envío.
+2. `crearPago` lee precios desde Firestore (nunca del navegador), crea el pedido `pendiente` y un link de pago de Mercado Pago que vence en una hora.
+3. Mercado Pago avisa a `mpWebhook`, que vuelve a consultar el pago y llama a `confirmarVenta`.
+4. `confirmarVenta`, en una transacción, marca las obras como `vendida` y el pedido como `pagado`. Si la obra ya se vendió, cambió el precio o el monto no coincide, devuelve el pago solo.
+5. El artista carga el envío en "Mis ventas" (`actualizarEnvio`) y el comprador lo sigue en "Mis pedidos". Cada paso manda un mail.

@@ -1,6 +1,7 @@
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Obra } from '../../core/services/artworks';
+import { ImagenPipe } from '../imagen.pipe';
 
 const PESOS = new Intl.NumberFormat('es-AR', {
   style: 'currency', currency: 'ARS', maximumFractionDigits: 0
@@ -8,7 +9,7 @@ const PESOS = new Intl.NumberFormat('es-AR', {
 
 @Component({
   selector: 'app-tarjeta-obra',
-  imports: [RouterLink],
+  imports: [RouterLink, ImagenPipe],
   templateUrl: './tarjeta-obra.html',
   styleUrl: './tarjeta-obra.css',
 })

@@ -4,7 +4,7 @@
 
     <main class="detalle-layout">
       <section class="obra-visual" aria-label="Imagen de la obra">
-        <img class="obra-imagen" [src]="o.imagenUrl" [alt]="o.titulo" />
+        <img class="obra-imagen" [src]="o.imagenUrl | imagen: 1600" [alt]="o.titulo" />
       </section>
 
       <article class="obra-info">

@@ -3,10 +3,11 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Artworks, EstadoObra, Obra } from '../../core/services/artworks';
 import { Auth } from '../../core/services/auth';
 import { Pagos, mensajeDeError } from '../../core/services/mercadopago';
+import { ImagenPipe } from '../../shared/imagen.pipe';
 
 @Component({
   selector: 'app-mis-obras',
-  imports: [RouterLink],
+  imports: [RouterLink, ImagenPipe],
   templateUrl: './mis-obras.html',
   styleUrl: './mis-obras.css',
 })

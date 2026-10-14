@@ -1,6 +1,6 @@
 <article class="tarjeta">
   <a class="marco" [routerLink]="['/obra', obra().id]" [attr.aria-label]="obra().titulo">
-    <img [src]="obra().imagenUrl" [alt]="obra().titulo" loading="lazy" />
+    <img [src]="obra().imagenUrl | imagen: 640" [alt]="obra().titulo" loading="lazy" />
 
     <!-- Solo en compu: al pasar el mouse -->
     <div class="hover" aria-hidden="true">

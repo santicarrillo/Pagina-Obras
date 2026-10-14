@@ -89,14 +89,28 @@ async function enviarMail(para, asunto, html) {
   }
 }
 
+// Siempre el mail real de la cuenta (Firebase Auth), nunca uno escrito a mano en la ficha
 async function emailDe(uid) {
   try {
-    const u = await db.doc(`users/${uid}`).get();
-    if (u.exists && u.data().email) return u.data().email;
     return (await getAuth().getUser(uid)).email ?? null;
   } catch {
     return null;
   }
+}
+
+// Resumen de un error de Mercado Pago para los logs: sin datos del pagador
+function resumenMp(e) {
+  return {
+    error: e?.message,
+    status: e?.status ?? null,
+    codigo: e?.datos?.error ?? e?.datos?.code ?? null,
+    detalle: typeof e?.datos?.message === 'string' ? e.datos.message.slice(0, 200) : null
+  };
+}
+
+// Fecha en el formato que pide Mercado Pago, en hora argentina (2026-10-14T18:00:00.000-03:00)
+function fechaMp(ms) {
+  return new Date(ms - 3 * 3600 * 1000).toISOString().replace('Z', '-03:00');
 }
 
 function listaObras(orden) {
@@ -137,12 +151,29 @@ function guardarTokens(uid, t) {
   }, { merge: true });
 }
 
+// Si Mercado Pago revocó el acceso (o no se pudo renovar a tiempo), el artista deja de figurar
+// como "puede cobrar" y le avisamos para que vuelva a conectar su cuenta.
+async function marcarDesconectado(uid, motivo) {
+  const ref = db.doc(`pagos_artistas/${uid}`);
+  const antes = await ref.get();
+  if (antes.exists && antes.data().conectado === false) return; // ya estaba avisado
+  await ref.set({ conectado: false, desconectadoEn: FieldValue.serverTimestamp(), motivo }, { merge: true });
+  logger.warn('Artista desconectado de Mercado Pago', { uid, motivo });
+  await enviarMail(await emailDe(uid), 'Volvé a conectar tu Mercado Pago — Anverso', plantillaMail(
+    'Tu Mercado Pago se desconectó',
+    ['Mercado Pago dejó de autorizar a Anverso a cobrar en tu nombre. Mientras tanto tus obras se ven, pero no se pueden comprar.',
+     'Entrá a "Mis obras" y tocá "Conectar" para volver a conectarla. Es un minuto.'],
+    { texto: 'Ir a mis obras', url: `${WEB_URL.value()}/admin/obras` }
+  ));
+}
+
 // Devuelve el access token del artista, renovándolo si está por vencer
 async function tokenDelArtista(uid) {
   const snap = await db.doc(`mp_cuentas/${uid}`).get();
   if (!snap.exists) return null;
   const cuenta = snap.data();
-  const faltaPoco = cuenta.expiraEn.toMillis() - Date.now() < 7 * 24 * 3600 * 1000;
+  const venceEn = cuenta.expiraEn?.toMillis?.() ?? 0; // sin fecha = renovar
+  const faltaPoco = venceEn - Date.now() < 7 * 24 * 3600 * 1000;
   if (!faltaPoco) return cuenta.accessToken;
 
   try {
@@ -156,11 +187,19 @@ async function tokenDelArtista(uid) {
       }
     });
     await guardarTokens(uid, t);
+    // Si había quedado marcado como desconectado, vuelve a poder cobrar
+    await db.doc(`pagos_artistas/${uid}`).set({ conectado: true }, { merge: true });
     return t.access_token;
   } catch (e) {
-    logger.error('No se pudo renovar el token del artista', { uid, error: e.message, datos: e.datos });
-    // Si todavía no venció, se usa el actual
-    return cuenta.expiraEn.toMillis() > Date.now() ? cuenta.accessToken : null;
+    logger.error('No se pudo renovar el token del artista', { uid, ...resumenMp(e) });
+    // Solo "invalid_grant" significa que Mercado Pago revocó el acceso. Un error de red,
+    // un 5xx o un problema con nuestras credenciales no desconecta al artista.
+    if (e?.datos?.error === 'invalid_grant') {
+      await marcarDesconectado(uid, 'revocado');
+      return null;
+    }
+    const vencido = cuenta.expiraEn && venceEn <= Date.now();
+    return vencido ? null : cuenta.accessToken;
   }
 }
 
@@ -245,14 +284,20 @@ exports.mpOauthCallback = onRequest({ secrets: [MP_CLIENT_SECRET] }, async (req,
   }
 
   try {
+    if (!/^[a-f0-9]{48}$/.test(String(state))) return volver('error');
     const stateRef = db.doc(`mp_oauth_states/${String(state)}`);
-    const stateSnap = await stateRef.get();
-    if (!stateSnap.exists) {
-      logger.warn('State inexistente: link ya usado o inválido', { largoState: String(state).length });
+    // Se lee y se borra en una transacción: el mismo link no se puede usar dos veces
+    const datosState = await db.runTransaction(async (tx) => {
+      const s = await tx.get(stateRef);
+      if (!s.exists) return null;
+      tx.delete(stateRef);
+      return s.data();
+    });
+    if (!datosState) {
+      logger.warn('State inexistente: link ya usado o inválido');
       return volver('error');
     }
-    const { uid, creadoEn } = stateSnap.data();
-    await stateRef.delete();
+    const { uid, creadoEn } = datosState;
 
     // El link de autorización vale 15 minutos
     if (!creadoEn || Date.now() - creadoEn.toMillis() > 15 * 60 * 1000) {
@@ -279,15 +324,7 @@ exports.mpOauthCallback = onRequest({ secrets: [MP_CLIENT_SECRET] }, async (req,
     logger.info('Artista conectado a Mercado Pago', { uid });
     return volver('conectado');
   } catch (e) {
-    // Solo largos y formato, nunca los valores: sirve para detectar un dato mal copiado
-    logger.error('Error en OAuth de Mercado Pago', {
-      error: e.message,
-      datos: e.datos,
-      largoClientId: clientId().length,
-      clientIdSoloNumeros: /^\d+$/.test(clientId()),
-      largoSecretOriginal: String(MP_CLIENT_SECRET.value() ?? '').length,
-      largoSecretLimpio: clientSecret().length
-    });
+    logger.error('Error en OAuth de Mercado Pago', resumenMp(e));
     return volver('error');
   }
 });
@@ -297,23 +334,54 @@ exports.mpOauthCallback = onRequest({ secrets: [MP_CLIENT_SECRET] }, async (req,
 // Los pedidos y ventas NO se tocan: compradores y artista conservan su historial.
 // ---------------------------------------------------------------------------
 
-async function bajaDeArtista(uid, batch) {
+// Ventas que todavía necesitan al artista: pagadas sin entregar, o un pago que alguien
+// empezó hace menos de 2 horas (el link de pago vence a la hora).
+async function ventasSinTerminar(uid) {
+  const snap = await db.collection('orders')
+    .where('artistId', '==', uid)
+    .where('estado', 'in', ['pendiente', 'pagado', 'conflicto'])
+    .get();
+  const hace2Horas = Date.now() - 2 * 3600 * 1000;
+  return snap.docs.filter(d => {
+    const o = d.data();
+    if (o.estado === 'pagado') return o.envioEstado !== 'entregado';
+    if (o.estado === 'conflicto') return !o.reembolsoId; // una devolución todavía pendiente
+    // Un pago en efectivo (Rapipago, Pago Fácil) o en revisión se puede aprobar días después
+    if (['pending', 'in_process'].includes(o.pagoEstado)) return true;
+    return (o.creadoEn?.toMillis?.() ?? 0) > hace2Horas;
+  }).length;
+}
+
+async function bajaDeArtista(uid) {
+  const pendientes = await ventasSinTerminar(uid);
+  if (pendientes > 0) {
+    throw new HttpsError('failed-precondition',
+      `Tenés ${pendientes === 1 ? 'una venta' : pendientes + ' ventas'} sin terminar. ` +
+      'Marcalas como entregadas en "Mis ventas" antes de darte de baja. Si alguien está pagando, esperá un par de horas.');
+  }
+
   const publicadas = await db.collection('artworks')
     .where('artistId', '==', uid)
     .where('estado', '==', 'publicada')
     .get();
-  publicadas.docs.forEach(d => batch.update(d.ref, { estado: 'pausada' }));
+  // Un lote de Firestore admite hasta 500 cambios: se pausan de a 400
+  for (let i = 0; i < publicadas.docs.length; i += 400) {
+    const lote = db.batch();
+    publicadas.docs.slice(i, i + 400).forEach(d => lote.update(d.ref, { estado: 'pausada' }));
+    await lote.commit();
+  }
+
+  const batch = db.batch();
   batch.delete(db.doc(`artists/${uid}`));
   batch.delete(db.doc(`pagos_artistas/${uid}`));
   batch.delete(db.doc(`mp_cuentas/${uid}`));
+  await batch.commit();
   return publicadas.size;
 }
 
 exports.dejarDeSerArtista = onCall(async (request) => {
   const { uid } = exigirLogin(request);
-  const batch = db.batch();
-  const obrasPausadas = await bajaDeArtista(uid, batch);
-  await batch.commit();
+  const obrasPausadas = await bajaDeArtista(uid);
   logger.info('Dejó de ser artista', { uid, obrasPausadas });
   return { obrasPausadas };
 });
@@ -322,10 +390,8 @@ exports.dejarDeSerArtista = onCall(async (request) => {
 // Los pedidos quedan, porque la otra parte de cada compra los necesita.
 exports.eliminarCuenta = onCall(async (request) => {
   const { uid } = exigirLogin(request);
-  const batch = db.batch();
-  await bajaDeArtista(uid, batch);
-  batch.delete(db.doc(`users/${uid}`));
-  await batch.commit();
+  await bajaDeArtista(uid);
+  await db.doc(`users/${uid}`).delete();
   await getAuth().deleteUser(uid);
   logger.info('Cuenta eliminada', { uid });
   return { ok: true };
@@ -336,7 +402,7 @@ exports.eliminarCuenta = onCall(async (request) => {
 //    Cada pago es para UN artista (la plata va a su cuenta).
 // ---------------------------------------------------------------------------
 
-exports.crearPago = onCall({ secrets: [MP_CLIENT_SECRET] }, async (request) => {
+exports.crearPago = onCall({ secrets: [MP_CLIENT_SECRET, SMTP_PASS] }, async (request) => {
   const auth = exigirLogin(request);
   const obraIds = request.data?.obraIds;
 
@@ -346,6 +412,17 @@ exports.crearPago = onCall({ secrets: [MP_CLIENT_SECRET] }, async (request) => {
   }
   const ids = [...new Set(obraIds)];
   const envio = validarEnvio(request.data?.envio);
+
+  // Freno contra pedidos basura: como mucho 5 pagos sin terminar por hora
+  const misPendientes = await db.collection('orders')
+    .where('buyerId', '==', auth.uid)
+    .where('estado', '==', 'pendiente')
+    .get();
+  const haceUnaHora = Date.now() - 3600 * 1000;
+  const recientes = misPendientes.docs.filter(d => (d.data().creadoEn?.toMillis?.() ?? 0) > haceUnaHora).length;
+  if (recientes >= 5) {
+    throw new HttpsError('failed-precondition', 'Tenés varios pagos empezados sin terminar. Esperá un rato y probá de nuevo.');
+  }
 
   // Se leen las obras del servidor: los precios del navegador no se usan nunca
   const snaps = await Promise.all(ids.map(id => db.doc(`artworks/${id}`).get()));
@@ -375,12 +452,8 @@ exports.crearPago = onCall({ secrets: [MP_CLIENT_SECRET] }, async (request) => {
   // La comisión de Anverso es solo sobre las obras, nunca sobre el envío
   const comision = Math.round((subtotal * COMISION_PORCENTAJE.value()) / 100);
 
-  // Contacto del artista para el comprador (sale de su ficha privada en users)
-  const fichaArtista = (await db.doc(`users/${artistId}`).get()).data() ?? {};
-  const artistaContacto = {
-    email: fichaArtista.email ?? null,
-    telefono: typeof fichaArtista.telefono === 'string' ? fichaArtista.telefono : null
-  };
+  // El link de pago vence en una hora: así nadie paga más tarde un precio viejo
+  const venceEn = Date.now() + 60 * 60 * 1000;
 
   const ordenRef = db.collection('orders').doc();
   await ordenRef.set({
@@ -389,7 +462,8 @@ exports.crearPago = onCall({ secrets: [MP_CLIENT_SECRET] }, async (request) => {
     buyerNombre: auth.token.name ?? null,
     artistId,
     artistaNombre: obras[0].artistaNombre ?? '',
-    artistaContacto,
+    // El contacto del artista se agrega recién cuando el pago se aprueba (confirmarVenta)
+    artistaContacto: null,
     obraIds: ids,
     items: obras.map(o => ({
       id: o.id, titulo: o.titulo, precio: o.precio, imagenUrl: o.imagenUrl, tecnica: o.tecnica ?? '',
@@ -402,7 +476,8 @@ exports.crearPago = onCall({ secrets: [MP_CLIENT_SECRET] }, async (request) => {
     total,
     comision,
     estado: 'pendiente',
-    creadoEn: FieldValue.serverTimestamp()
+    creadoEn: FieldValue.serverTimestamp(),
+    venceEn: Timestamp.fromMillis(venceEn)
   });
 
   const web = WEB_URL.value();
@@ -439,6 +514,9 @@ exports.crearPago = onCall({ secrets: [MP_CLIENT_SECRET] }, async (request) => {
         },
         auto_return: 'approved',
         statement_descriptor: 'ANVERSO',
+        expires: true,
+        expiration_date_from: fechaMp(Date.now() - 60 * 1000),
+        expiration_date_to: fechaMp(venceEn),
         ...(comision > 0 ? { marketplace_fee: comision } : {})
       }
     });
@@ -446,8 +524,12 @@ exports.crearPago = onCall({ secrets: [MP_CLIENT_SECRET] }, async (request) => {
     await ordenRef.update({ preferenciaId: pref.id });
     return { url: pref.init_point, ordenId: ordenRef.id };
   } catch (e) {
-    logger.error('No se pudo crear la preferencia', { orden: ordenRef.id, error: e.message, datos: e.datos });
+    logger.error('No se pudo crear la preferencia', { orden: ordenRef.id, ...resumenMp(e) });
     await ordenRef.update({ estado: 'error' });
+    if (e?.status === 401) {
+      await marcarDesconectado(artistId, 'revocado');
+      throw new HttpsError('failed-precondition', 'Este artista tiene que volver a conectar su Mercado Pago. Probá más adelante.');
+    }
     throw new HttpsError('internal', 'No pudimos iniciar el pago. Probá de nuevo en un rato.');
   }
 });
@@ -458,12 +540,14 @@ exports.crearPago = onCall({ secrets: [MP_CLIENT_SECRET] }, async (request) => {
 // ---------------------------------------------------------------------------
 
 exports.mpWebhook = onRequest({ secrets: [MP_CLIENT_SECRET, SMTP_PASS] }, async (req, res) => {
-  const ordenId = req.query.orden;
+  const ordenId = String(req.query.orden ?? '');
   const tipo = req.query.type || req.query.topic || req.body?.type;
-  const pagoId = req.query['data.id'] || req.body?.data?.id || (tipo === 'payment' ? req.query.id : null);
+  const pagoId = String(req.query['data.id'] || req.body?.data?.id || (tipo === 'payment' ? req.query.id : '') || '');
 
-  // Avisos que no son de pagos (ej. merchant_order) se ignoran
-  if (!ordenId || tipo !== 'payment' || !pagoId) return res.status(200).send('ignorado');
+  // Avisos que no son de pagos (ej. merchant_order) o con datos raros se ignoran
+  if (tipo !== 'payment' || !/^[A-Za-z0-9]{20}$/.test(ordenId) || !/^\d{1,20}$/.test(pagoId)) {
+    return res.status(200).send('ignorado');
+  }
 
   try {
     const ordenRef = db.doc(`orders/${ordenId}`);
@@ -472,7 +556,17 @@ exports.mpWebhook = onRequest({ secrets: [MP_CLIENT_SECRET, SMTP_PASS] }, async 
     const orden = ordenSnap.data();
 
     const token = await tokenDelArtista(orden.artistId);
-    if (!token) throw new Error('El artista no tiene token');
+    if (!token) {
+      // Sin acceso a la cuenta del artista no se puede verificar el pago: queda para revisar a mano
+      await ordenRef.update({ revisionManual: true, pagoIdAviso: pagoId });
+      logger.error('REVISAR A MANO: aviso de pago sin token del artista', { ordenId, pagoId, artistId: orden.artistId });
+      await enviarMail(limpiar(SMTP_USER.value()), `Revisar pedido ${ordenId} — Anverso`, plantillaMail(
+        'Hay un pago para revisar a mano',
+        [`Llegó un aviso del pago <strong>${escapar(pagoId)}</strong> del pedido <strong>${escapar(ordenId)}</strong>, pero el artista ya no tiene Mercado Pago conectado.`,
+         'Revisá el pedido en la consola de Firebase (colección orders) y el pago en Mercado Pago.']
+      ));
+      return res.status(200).send('revision manual');
+    }
 
     const pago = await mpFetch(`/v1/payments/${pagoId}`, { token });
     if (pago.external_reference !== ordenId) {
@@ -483,38 +577,145 @@ exports.mpWebhook = onRequest({ secrets: [MP_CLIENT_SECRET, SMTP_PASS] }, async 
     if (pago.status === 'approved') {
       await confirmarVenta(ordenRef, pago, token);
     } else if (['rejected', 'cancelled'].includes(pago.status)) {
-      await ordenRef.update({ estado: 'rechazado', pagoId: String(pago.id), pagoEstado: pago.status });
+      await registrarRechazo(ordenRef, pago);
     } else if (['refunded', 'charged_back'].includes(pago.status)) {
-      await ordenRef.update({ estado: 'reembolsado', pagoId: String(pago.id), pagoEstado: pago.status });
+      await registrarDevolucion(ordenRef, pago);
     } else {
-      await ordenRef.update({ pagoId: String(pago.id), pagoEstado: pago.status });
+      // pending / in_process: solo se anota si el pedido sigue esperando el pago
+      await db.runTransaction(async (tx) => {
+        const o = (await tx.get(ordenRef)).data();
+        if (o.estado === 'pendiente') tx.update(ordenRef, { pagoId: String(pago.id), pagoEstado: pago.status });
+      });
     }
     return res.status(200).send('ok');
   } catch (e) {
-    logger.error('Error procesando aviso de Mercado Pago', { ordenId, pagoId, error: e.message, datos: e.datos });
+    logger.error('Error procesando aviso de Mercado Pago', { ordenId, pagoId, ...resumenMp(e) });
     // 500 hace que Mercado Pago reintente más tarde
     return res.status(500).send('error');
   }
 });
 
-// Marca las obras como vendidas. Si alguna ya se había vendido (dos compradores
-// pagando a la vez), se devuelve la plata automáticamente.
+// Un pago rechazado solo cambia un pedido que todavía no se pagó. Si el comprador
+// reintentó y pagó con otra tarjeta, un aviso tardío del intento fallido no pisa la venta.
+async function registrarRechazo(ordenRef, pago) {
+  await db.runTransaction(async (tx) => {
+    const orden = (await tx.get(ordenRef)).data();
+    if (!['pendiente', 'rechazado', 'error'].includes(orden.estado)) {
+      logger.info('Aviso de rechazo ignorado: el pedido ya avanzó', { orden: ordenRef.id, estado: orden.estado, pago: pago.id });
+      return;
+    }
+    tx.update(ordenRef, { estado: 'rechazado', pagoId: String(pago.id), pagoEstado: pago.status });
+  });
+}
+
+// Devolución o contracargo del pago que confirmó la venta: el pedido queda devuelto
+// y las obras vuelven al artista como pausadas, para que decida si las publica de nuevo.
+async function registrarDevolucion(ordenRef, pago) {
+  let devueltaAhora = false;
+  await db.runTransaction(async (tx) => {
+    const orden = (await tx.get(ordenRef)).data();
+    if (orden.estado === 'reembolsado') return;
+    if (orden.estado === 'conflicto') {
+      if (orden.pagoId === String(pago.id)) {
+        tx.update(ordenRef, { estado: 'reembolsado', reembolsoId: orden.reembolsoId ?? 'mp', pagoEstado: pago.status });
+      }
+      return;
+    }
+    if (orden.estado !== 'pagado' || orden.pagoId !== String(pago.id)) {
+      logger.info('Aviso de devolución ignorado: no es el pago de la venta', { orden: ordenRef.id, pago: pago.id });
+      return;
+    }
+    const obraRefs = orden.obraIds.map(id => db.doc(`artworks/${id}`));
+    const obras = await Promise.all(obraRefs.map(r => tx.get(r)));
+    obras.forEach((o, i) => {
+      if (o.exists && o.data().estado === 'vendida' && o.data().ordenId === ordenRef.id) {
+        tx.update(obraRefs[i], { estado: 'pausada' });
+      }
+    });
+    tx.update(ordenRef, { estado: 'reembolsado', pagoEstado: pago.status, devueltoEn: FieldValue.serverTimestamp() });
+    devueltaAhora = true;
+  });
+
+  if (devueltaAhora) {
+    const orden = (await ordenRef.get()).data();
+    logger.warn('Venta devuelta: obras pausadas', { orden: ordenRef.id, pago: pago.id, motivo: pago.status });
+    await enviarMail(await emailDe(orden.artistId), 'Se devolvió una venta — Anverso', plantillaMail(
+      'Se devolvió el pago de una venta',
+      [`Mercado Pago devolvió el pago de ${listaObras(orden)}.`,
+       'La obra volvió a tus obras como pausada. Cuando la tengas de nuevo, podés volver a publicarla desde "Mis obras".'],
+      { texto: 'Ir a mis obras', url: `${WEB_URL.value()}/admin/obras` }
+    ));
+  }
+}
+
+// Contacto del artista para el comprador: se agrega recién con el pago aprobado
+async function contactoDelArtista(artistId) {
+  const ficha = (await db.doc(`users/${artistId}`).get()).data() ?? {};
+  return {
+    email: await emailDe(artistId),
+    telefono: typeof ficha.telefono === 'string' ? ficha.telefono : null
+  };
+}
+
+const MOTIVOS_DEVOLUCION = {
+  vendida: (orden) => [`Mientras pagabas, otra persona compró ${listaObras(orden)}. Mercado Pago ya te está devolviendo el dinero completo.`,
+    'Perdón por las molestias. Hay muchas obras más esperándote en la galería.'],
+  'no-disponible': (orden) => [`${listaObras(orden)} dejó de estar a la venta mientras pagabas, así que te devolvimos el pago completo.`,
+    'Hay muchas obras más esperándote en la galería.'],
+  duplicado: (orden) => [`Recibimos dos pagos por ${listaObras(orden)}. Tu compra sigue en pie y te devolvimos el pago repetido completo.`,
+    'No tenés que hacer nada: Mercado Pago ya te está devolviendo el dinero.'],
+  precio: (orden) => [`El artista cambió el precio de ${listaObras(orden)} mientras pagabas, así que te devolvimos el pago completo.`,
+    'Si todavía te interesa, podés volver a comprarla con el precio actual.'],
+  monto: (orden) => [`El monto que se cobró no coincidía con el de tu pedido de ${listaObras(orden)}, así que te devolvimos el pago completo.`,
+    'Podés volver a intentarlo desde tu carrito.']
+};
+
+// Marca las obras como vendidas. Si alguna ya se había vendido (dos compradores pagando
+// a la vez), si cambió el precio o si el monto no coincide, se devuelve la plata sola.
 async function confirmarVenta(ordenRef, pago, token) {
-  let conflicto = false;
+  let devolver = null; // motivo de la devolución, si hay que hacerla
   let pagadoAhora = false;
 
-  await db.runTransaction(async (tx) => {
-    const ordenSnap = await tx.get(ordenRef);
-    const orden = ordenSnap.data();
-    if (['pagado', 'conflicto', 'reembolsado'].includes(orden.estado)) return; // ya procesado
+  const ordenPrevia = (await ordenRef.get()).data();
+  const contacto = await contactoDelArtista(ordenPrevia.artistId);
 
+  await db.runTransaction(async (tx) => {
+    devolver = null;
+    pagadoAhora = false;
+    const orden = (await tx.get(ordenRef)).data();
+    const mismoPago = orden.pagoId === String(pago.id);
+
+    if (['pagado', 'reembolsado', 'conflicto'].includes(orden.estado)) {
+      if (!mismoPago) {
+        // Otro pago aprobado para un pedido ya resuelto (dos pestañas, un reintento):
+        // se devuelve ese pago y el pedido no se toca
+        devolver = 'duplicado';
+      } else if (orden.estado === 'conflicto' && !orden.reembolsoId) {
+        // Una devolución anterior falló: se reintenta (la clave de idempotencia evita devolver dos veces)
+        devolver = orden.motivoConflicto ?? 'vendida';
+      }
+      return;
+    }
+
+    const montoOk = Math.abs(Number(pago.transaction_amount) - orden.total) < 0.01 && pago.currency_id === 'ARS';
     const obraRefs = orden.obraIds.map(id => db.doc(`artworks/${id}`));
     const obras = await Promise.all(obraRefs.map(r => tx.get(r)));
     const todasLibres = obras.every(s => s.exists && s.data().estado === 'publicada');
+    const algunaVendida = obras.some(s => s.exists && s.data().estado === 'vendida');
+    const mismoPrecio = obras.every((s, i) => {
+      const item = orden.items[i] ?? {};
+      const envioActual = Number.isInteger(s.data()?.envio) ? s.data().envio : null;
+      // Pedidos viejos sin el envío anotado: solo se compara el precio
+      const envioIgual = !('envio' in item) || envioActual === item.envio;
+      return s.exists && s.data().precio === item.precio && envioIgual;
+    });
 
-    if (!todasLibres) {
-      conflicto = true;
-      tx.update(ordenRef, { estado: 'conflicto', pagoId: String(pago.id), pagoEstado: pago.status });
+    const motivo = !montoOk ? 'monto'
+      : !todasLibres ? (algunaVendida ? 'vendida' : 'no-disponible')
+      : !mismoPrecio ? 'precio' : null;
+    if (motivo) {
+      devolver = motivo;
+      tx.update(ordenRef, { estado: 'conflicto', motivoConflicto: motivo, pagoId: String(pago.id), pagoEstado: pago.status });
       return;
     }
 
@@ -526,36 +727,49 @@ async function confirmarVenta(ordenRef, pago, token) {
       envioEstado: 'preparando',
       pagoId: String(pago.id),
       pagoEstado: pago.status,
-      pagadoEn: FieldValue.serverTimestamp()
+      pagadoEn: FieldValue.serverTimestamp(),
+      artistaContacto: contacto
     });
     pagadoAhora = true;
   });
 
   if (pagadoAhora) await avisarVenta(ordenRef);
+  if (devolver) await devolverPago(ordenRef, pago, token, devolver);
+}
 
-  if (conflicto) {
-    try {
-      await mpFetch(`/v1/payments/${pago.id}/refunds`, {
-        token,
-        method: 'POST',
-        body: {},
-        headers: { 'X-Idempotency-Key': `reembolso-${pago.id}` }
-      });
-      await ordenRef.update({ estado: 'reembolsado' });
-      logger.warn('Obra ya vendida: pago reembolsado', { orden: ordenRef.id, pago: pago.id });
-      const orden = (await ordenRef.get()).data();
-      await enviarMail(orden.buyerEmail, 'Te devolvimos el pago — Anverso', plantillaMail(
-        'La obra ya se había vendido',
-        [`Mientras pagabas, otra persona compró ${listaObras(orden)}. Mercado Pago ya te está devolviendo el dinero completo.`,
-         'Perdón por las molestias. Hay muchas obras más esperándote en la galería.'],
-        { texto: 'Ver la galería', url: WEB_URL.value() }
-      ));
-    } catch (e) {
-      logger.error('No se pudo reembolsar automáticamente: revisar a mano', {
-        orden: ordenRef.id, pago: pago.id, error: e.message, datos: e.datos
-      });
-    }
+// Si la devolución falla, se tira el error: el aviso responde 500, Mercado Pago lo
+// reintenta y confirmarVenta vuelve a probar la devolución.
+async function devolverPago(ordenRef, pago, token, motivo) {
+  const duplicado = motivo === 'duplicado';
+  let reembolso;
+  try {
+    reembolso = await mpFetch(`/v1/payments/${pago.id}/refunds`, {
+      token,
+      method: 'POST',
+      body: {},
+      headers: { 'X-Idempotency-Key': `reembolso-${pago.id}` }
+    });
+  } catch (e) {
+    logger.error('No se pudo devolver el pago: se reintenta con el próximo aviso', { orden: ordenRef.id, pago: pago.id, ...resumenMp(e) });
+    throw e;
   }
+  const reembolsoId = String(reembolso?.id ?? 'ok');
+  await db.runTransaction(async (tx) => {
+    const o = (await tx.get(ordenRef)).data();
+    if (duplicado) {
+      // El pedido sigue como estaba; solo se anota el pago repetido que se devolvió
+      tx.update(ordenRef, { reembolsosDuplicados: FieldValue.arrayUnion(String(pago.id)) });
+    } else if (o.estado === 'conflicto' && o.pagoId === String(pago.id)) {
+      tx.update(ordenRef, { estado: 'reembolsado', reembolsoId });
+    }
+  });
+  logger.warn('Pago devuelto automáticamente', { orden: ordenRef.id, pago: pago.id, motivo });
+  const orden = (await ordenRef.get()).data();
+  await enviarMail(orden.buyerEmail, 'Te devolvimos el pago — Anverso', plantillaMail(
+    motivo === 'vendida' ? 'La obra ya se había vendido' : 'Te devolvimos el pago',
+    (MOTIVOS_DEVOLUCION[motivo] ?? MOTIVOS_DEVOLUCION.vendida)(orden),
+    { texto: 'Ver la galería', url: WEB_URL.value() }
+  ));
 }
 
 // Mails cuando se confirma un pago: al comprador y al artista

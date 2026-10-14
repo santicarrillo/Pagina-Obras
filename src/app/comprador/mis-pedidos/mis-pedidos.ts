@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { EstadoPedido, Pedido, Pedidos } from '../../core/services/orders';
 import { mensajeDeError } from '../../core/services/mercadopago';
 import { PasosEnvio } from '../../shared/pasos-envio/pasos-envio';
+import { ImagenPipe } from '../../shared/imagen.pipe';
 
 const PESOS = new Intl.NumberFormat('es-AR', {
   style: 'currency', currency: 'ARS', maximumFractionDigits: 0
@@ -20,7 +21,7 @@ export const NOMBRES_ESTADO: Record<EstadoPedido, string> = {
 
 @Component({
   selector: 'app-mis-pedidos',
-  imports: [RouterLink, PasosEnvio],
+  imports: [RouterLink, PasosEnvio, ImagenPipe],
   templateUrl: './mis-pedidos.html',
   styleUrl: './mis-pedidos.css',
 })

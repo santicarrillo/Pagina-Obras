@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Carrito, ItemCarrito } from '../../core/services/carrito';
 import { Auth } from '../../core/services/auth';
 import { DatosEnvio, PROVINCIAS, Pagos, mensajeDeError } from '../../core/services/mercadopago';
+import { ImagenPipe } from '../../shared/imagen.pipe';
 
 const PESOS = new Intl.NumberFormat('es-AR', {
   style: 'currency', currency: 'ARS', maximumFractionDigits: 0
@@ -37,7 +38,7 @@ interface GrupoArtista {
 
 @Component({
   selector: 'app-carrito',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, ImagenPipe],
   templateUrl: './carrito.html',
   styleUrl: './carrito.css',
 })

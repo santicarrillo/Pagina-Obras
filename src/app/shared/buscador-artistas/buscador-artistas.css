@@ -15,7 +15,7 @@
   width: 14px;
   height: 14px;
   transform: translateY(-50%);
-  color: rgba(245, 238, 232, 0.5);
+  color: rgba(245, 238, 232, 0.55);
   pointer-events: none;
   transition: color 0.2s ease;
 }
@@ -37,7 +37,7 @@ input {
 }
 
 input::placeholder {
-  color: rgba(245, 238, 232, 0.5);
+  color: rgba(245, 238, 232, 0.55);
   text-transform: uppercase;
   letter-spacing: 0.18em;
   font-size: 0.68rem;
@@ -116,7 +116,7 @@ input::-webkit-search-cancel-button {
 }
 
 .ciudad {
-  color: rgba(245, 238, 232, 0.5);
+  color: rgba(245, 238, 232, 0.55);
   font-size: 0.78rem;
 }
 

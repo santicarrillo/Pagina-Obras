@@ -1,4 +1,5 @@
-import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, effect, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Artista, Artistas } from '../../core/services/artistas';
 import { Obra } from '../../core/services/artworks';
@@ -34,7 +35,14 @@ export class ArtistaPagina {
   puedeIzq = signal(false);
   puedeDer = signal(true);
 
+  private title = inject(Title);
+
   constructor() {
+    // El nombre de la pestaña pasa a ser el de esta página de artista
+    effect(() => {
+      const x = this.artista();
+      if (x) this.title.setTitle(`${x.nombreArtistico} · Anverso`);
+    });
     this.route.paramMap.subscribe(p => this.cargar(p.get('id') ?? ''));
   }
 

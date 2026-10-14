@@ -48,3 +48,13 @@ Thumbs.db
 /functions/.secret.local
 .firebase/
 firebase-debug.log
+
+# Secretos y configuración local de Firebase (nunca al repo)
+functions/.env.local
+functions/.env.*.local
+functions/.secret.local
+.runtimeconfig.json
+functions/.runtimeconfig.json
+*.secret
+secreto*.txt
+mail*.txt

@@ -41,7 +41,7 @@
           <ul class="items">
             @for (item of p.items; track item.id) {
               <li class="item">
-                <img [src]="item.imagenUrl" [alt]="item.titulo" />
+                <img [src]="item.imagenUrl | imagen: 240" [alt]="item.titulo" />
                 <div>
                   <p class="titulo">{{ item.titulo }}</p>
                   <p class="tecnica">{{ item.tecnica }}</p>

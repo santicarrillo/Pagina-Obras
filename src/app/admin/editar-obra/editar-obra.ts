@@ -3,10 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Artworks, Obra } from '../../core/services/artworks';
 import { Auth } from '../../core/services/auth';
+import { ImagenPipe } from '../../shared/imagen.pipe';
 
 @Component({
   selector: 'app-editar-obra',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, ImagenPipe],
   templateUrl: './editar-obra.html',
   styleUrls: ['../nueva-obra/nueva-obra.css', './editar-obra.css'],
 })

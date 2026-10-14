@@ -2,6 +2,9 @@
   "name": "anverso-functions",
   "private": true,
   "main": "index.js",
+  "scripts": {
+    "test": "node test/simulacion.js"
+  },
   "engines": {
     "node": "22"
   },

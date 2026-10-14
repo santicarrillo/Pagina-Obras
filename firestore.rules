@@ -27,12 +27,21 @@ service cloud.firestore {
     match /users/{uid} {
       allow read: if esDueno(uid);
 
+      // Solo estos campos, y el mail tiene que ser el de su cuenta (lo usan los avisos)
       allow create: if esDueno(uid)
-        && request.resource.data.role == 'comprador';
+        && request.resource.data.keys().hasOnly(['email', 'nombre', 'role', 'creadoEn', 'telefono', 'codigoPostal'])
+        && request.resource.data.role == 'comprador'
+        && request.resource.data.email == request.auth.token.get('email', null)
+        && (request.resource.data.get('nombre', null) == null || textoEntre(request.resource.data.nombre, 0, 100))
+        && (!('telefono' in request.resource.data) || textoEntre(request.resource.data.telefono, 0, 20))
+        && (!('codigoPostal' in request.resource.data) || textoEntre(request.resource.data.codigoPostal, 0, 8));
 
-      // Puede editar su perfil, pero nunca cambiar su rol
+      // Puede cambiar su nombre y sus datos de contacto; nunca su rol ni su mail
       allow update: if esDueno(uid)
-        && request.resource.data.role == resource.data.role;
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nombre', 'telefono', 'codigoPostal'])
+        && (request.resource.data.get('nombre', null) == null || textoEntre(request.resource.data.nombre, 0, 100))
+        && (!('telefono' in request.resource.data) || textoEntre(request.resource.data.telefono, 0, 20))
+        && (!('codigoPostal' in request.resource.data) || textoEntre(request.resource.data.codigoPostal, 0, 8));
 
       allow delete: if false;
     }
@@ -86,7 +95,7 @@ service cloud.firestore {
           && textoEntre(d.medidas, 0, 40)
           && textoEntre(d.descripcion, 0, 1000)
           && (d.anio == null || d.anio is int)
-          && d.precio is int && d.precio > 0
+          && d.precio is int && d.precio > 0 && d.precio <= 100000000
           // Envío fijo: 0 = gratis. Las obras viejas pueden no tenerlo.
           && (!('envio' in d) || (d.envio is int && d.envio >= 0 && d.envio <= 10000000));
       }
@@ -101,9 +110,11 @@ service cloud.firestore {
              'imagenUrl', 'artistId', 'artistaNombre', 'estado', 'creadoEn', 'envio'])
         && datosObraValidos()
         && request.resource.data.artistId == request.auth.uid
-        && textoEntre(request.resource.data.artistaNombre, 2, 60)
-        // Solo imágenes de TU cuenta de Cloudinary
-        && request.resource.data.imagenUrl.matches('https://res[.]cloudinary[.]com/xmmd0cpx/.*')
+        // El nombre que se muestra tiene que ser el de tu perfil: nadie publica a nombre de otro
+        && request.resource.data.artistaNombre
+             == get(/databases/$(database)/documents/artists/$(request.auth.uid)).data.nombreArtistico
+        // Solo imágenes subidas a TU cuenta de Cloudinary
+        && request.resource.data.imagenUrl.matches('https://res[.]cloudinary[.]com/xmmd0cpx/image/upload/.*')
         // Cuando exista la moderación automática, esto pasa a 'procesando'
         && request.resource.data.estado == 'publicada'
         && request.resource.data.creadoEn == request.time;

@@ -23,7 +23,7 @@ body {
 }
 
 .campo .opcional {
-  color: rgba(245, 238, 232, 0.4);
+  color: rgba(245, 238, 232, 0.55);
   font-size: 0.8rem;
   margin-left: 6px;
 }
@@ -56,7 +56,7 @@ body {
 }
 
 .campo .ayuda {
-  color: rgba(245, 238, 232, 0.45);
+  color: rgba(245, 238, 232, 0.55);
   font-size: 0.8rem;
 }
 
@@ -188,7 +188,7 @@ select:-webkit-autofill {
 /* Aviso chico de "al continuar aceptás..." debajo de botones importantes */
 .nota-legal {
   margin: 12px 0 0;
-  color: rgba(245, 238, 232, 0.45);
+  color: rgba(245, 238, 232, 0.55);
   font-size: 0.76rem;
   line-height: 1.6;
 }

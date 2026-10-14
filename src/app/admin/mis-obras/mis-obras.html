@@ -95,7 +95,7 @@
       @for (obra of obras(); track obra.id) {
         <li class="obra">
           <a [routerLink]="['/obra', obra.id]" class="marco">
-            <img [src]="obra.imagenUrl" [alt]="obra.titulo" loading="lazy" />
+            <img [src]="obra.imagenUrl | imagen: 560" [alt]="obra.titulo" loading="lazy" />
           </a>
           <div class="datos">
             <span class="estado" [attr.data-estado]="obra.estado">{{ nombresEstado[obra.estado] }}</span>
