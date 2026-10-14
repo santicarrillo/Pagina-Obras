@@ -1,0 +1,1 @@
+import{K as Qy,ht as Xv,q as Ra,rn as ka}from"./chunk-CT-PSfh1.js";var i=class t{static ɵfac=function(e){return new(e||t)};static ɵcmp=Qy({type:t,selectors:[[`app-checkout`]],decls:2,vars:0,template:function(e,m){e&1&&(Ra(0,`p`),Xv(1,`checkout works!`),ka())},encapsulation:2})};export{i as Checkout};
