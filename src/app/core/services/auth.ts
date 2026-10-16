@@ -47,6 +47,8 @@ export class Auth {
   private perfilPromise: Promise<Perfil | null> | null = null;
 
   constructor() {
+    // Los mails que manda Firebase (como el link para entrar) salen en español
+    this.auth.languageCode = 'es';
     onAuthStateChanged(this.auth, async (user) => {
       this.usuario.set(user);
       this.aplicarPerfil(user ? await this.cargarPerfil(user) : null);

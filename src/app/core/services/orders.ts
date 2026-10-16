@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { getFirestore, collection, getDocs, query, where, Timestamp } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, onSnapshot, query, where, Timestamp } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { firebaseApp } from './firebase';
 import { Auth } from './auth';
@@ -7,15 +7,27 @@ import { Auth } from './auth';
 // Después del pago: preparando → enviado → entregado
 export type EstadoEnvio = 'preparando' | 'enviado' | 'entregado';
 
-export type EmpresaEnvio = 'andreani' | 'correo' | 'oca' | 'otra' | 'mano';
+// Todo envío viaja por un correo con seguimiento: así el comprador siempre puede rastrearlo
+export type EmpresaEnvio = 'andreani' | 'correo' | 'oca';
 
-export const EMPRESAS: Record<EmpresaEnvio, { nombre: string; url: string | null }> = {
+export interface DatosEmpresa { nombre: string; url: string | null }
+
+export const EMPRESAS: Record<EmpresaEnvio, DatosEmpresa> = {
   andreani: { nombre: 'Andreani', url: 'https://www.andreani.com/?tab=seguir-envio' },
   correo: { nombre: 'Correo Argentino', url: 'https://www.correoargentino.com.ar/formularios/e-commerce' },
-  oca: { nombre: 'OCA', url: 'https://www.oca.com.ar/Busquedas/Envios' },
+  oca: { nombre: 'OCA', url: 'https://www.oca.com.ar/Busquedas/Envios' }
+};
+
+// Opciones que ya no se pueden elegir, pero que pueden figurar en pedidos viejos
+const EMPRESAS_ANTERIORES: Record<string, DatosEmpresa> = {
   otra: { nombre: 'Otra empresa', url: null },
   mano: { nombre: 'Entrega en mano', url: null }
 };
+
+export function datosEmpresa(empresa: string | null | undefined): DatosEmpresa | null {
+  if (!empresa) return null;
+  return EMPRESAS[empresa as EmpresaEnvio] ?? EMPRESAS_ANTERIORES[empresa] ?? null;
+}
 
 export type EstadoPedido = 'pendiente' | 'pagado' | 'rechazado' | 'reembolsado' | 'conflicto' | 'error';
 
@@ -52,7 +64,7 @@ export interface Pedido {
   envio: DireccionEnvio | null;
   total: number;
   envioEstado: EstadoEnvio | null;
-  seguimiento: { empresa: EmpresaEnvio; codigo: string } | null;
+  seguimiento: { empresa: string; codigo: string } | null;
   artistaContacto: { email: string | null; telefono: string | null } | null;
   enviadoEn: Date | null;
   entregadoEn: Date | null;
@@ -74,6 +86,21 @@ export class Pedidos {
   // Lo que me compraron (para artistas)
   misVentas() {
     return this.buscar('artistId');
+  }
+
+  // Ventas pagadas que el artista todavía no despachó, en vivo (para el aviso del menú).
+  // Devuelve la función para dejar de escuchar.
+  escucharPorDespachar(uid: string, alCambiar: (cantidad: number) => void): () => void {
+    const q = query(
+      collection(this.db, 'orders'),
+      where('artistId', '==', uid),
+      where('estado', '==', 'pagado'),
+      where('envioEstado', '==', 'preparando')
+    );
+    return onSnapshot(q, snap => alCambiar(snap.size), err => {
+      console.error('No se pudieron revisar las ventas', err);
+      alCambiar(0);
+    });
   }
 
   // El artista marca el envío (con empresa y código) o la entrega; el comprador confirma que la recibió

@@ -1,5 +1,5 @@
 import { Component, computed, input, signal } from '@angular/core';
-import { EMPRESAS, Pedido } from '../../core/services/orders';
+import { Pedido, datosEmpresa } from '../../core/services/orders';
 
 const FECHA = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short' });
 
@@ -27,7 +27,7 @@ export class PasosEnvio {
 
   empresa = computed(() => {
     const s = this.pedido().seguimiento;
-    return s ? EMPRESAS[s.empresa] : null;
+    return s ? datosEmpresa(s.empresa) : null;
   });
 
   copiado = signal(false);

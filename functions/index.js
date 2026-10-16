@@ -802,12 +802,11 @@ async function avisarVenta(ordenRef) {
 //    o "entregado"; el comprador puede confirmar que la recibió.
 // ---------------------------------------------------------------------------
 
+// Solo correos con seguimiento: así el comprador siempre puede rastrear su obra
 const EMPRESAS = {
   andreani: { nombre: 'Andreani', url: 'https://www.andreani.com/?tab=seguir-envio' },
   correo: { nombre: 'Correo Argentino', url: 'https://www.correoargentino.com.ar/formularios/e-commerce' },
-  oca: { nombre: 'OCA', url: 'https://www.oca.com.ar/Busquedas/Envios' },
-  otra: { nombre: 'Otra empresa', url: null },
-  mano: { nombre: 'Entrega en mano', url: null }
+  oca: { nombre: 'OCA', url: 'https://www.oca.com.ar/Busquedas/Envios' }
 };
 
 exports.actualizarEnvio = onCall({ secrets: [SMTP_PASS] }, async (request) => {
@@ -834,25 +833,25 @@ exports.actualizarEnvio = onCall({ secrets: [SMTP_PASS] }, async (request) => {
   if (estado === 'enviado') {
     const empresa = request.data.empresa;
     const codigo = typeof request.data.codigo === 'string' ? request.data.codigo.trim().slice(0, 60) : '';
-    if (!EMPRESAS[empresa]) throw new HttpsError('invalid-argument', 'Elegí con qué empresa lo mandaste.');
-    if (empresa !== 'mano' && codigo.length < 4) {
+    if (!Object.hasOwn(EMPRESAS, empresa)) throw new HttpsError('invalid-argument', 'Elegí con qué empresa lo mandaste.');
+    if (codigo.length < 4) {
       throw new HttpsError('invalid-argument', 'Poné el código de seguimiento que te dio la empresa.');
     }
 
     await ordenRef.update({
       envioEstado: 'enviado',
-      seguimiento: { empresa, codigo: empresa === 'mano' ? '' : codigo },
+      seguimiento: { empresa, codigo },
       enviadoEn: FieldValue.serverTimestamp()
     });
 
     const e = EMPRESAS[empresa];
-    const parrafos = empresa === 'mano'
-      ? [`${escapar(orden.artistaNombre)} marcó ${listaObras(orden)} como lista para entregarte en mano. Se va a contactar con vos para coordinar.`]
-      : [`${escapar(orden.artistaNombre)} despachó ${listaObras(orden)} por <strong>${escapar(e.nombre)}</strong>.`,
-         `Código de seguimiento: <strong>${escapar(codigo)}</strong>`,
-         e.url ? `Podés seguirla en la página de ${escapar(e.nombre)} con ese código.` : ''];
+    const parrafos = [
+      `${escapar(orden.artistaNombre)} despachó ${listaObras(orden)} por <strong>${escapar(e.nombre)}</strong>.`,
+      `Código de seguimiento: <strong>${escapar(codigo)}</strong>`,
+      `Podés seguirla en la <a href="${e.url}" style="color:#2b241b">página de ${escapar(e.nombre)}</a> con ese código, o desde tu pedido en Anverso.`
+    ];
     await enviarMail(orden.buyerEmail, 'Tu obra está en camino — Anverso', plantillaMail(
-      '¡Tu obra está en camino!', parrafos.filter(Boolean), { texto: 'Ver mi pedido', url: `${web}/mis-pedidos` }
+      '¡Tu obra está en camino!', parrafos, { texto: 'Ver mi pedido', url: `${web}/mis-pedidos` }
     ));
     return { ok: true };
   }

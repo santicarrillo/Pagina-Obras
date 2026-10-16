@@ -394,3 +394,34 @@ body {
     }
 
 }
+/* Aviso de ventas por despachar: punto en el usuario y contador en el menú */
+.user-button {
+    position: relative;
+}
+
+.punto-aviso {
+    position: absolute;
+    top: 1px;
+    left: 26px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #e3a08f;
+    box-shadow: 0 0 0 2px #100e0a;
+}
+
+.menu-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.contador-aviso {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(227, 160, 143, 0.16);
+    color: #f1c2b6;
+    font-size: 0.7rem;
+    white-space: nowrap;
+}

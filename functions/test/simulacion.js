@@ -266,6 +266,19 @@ caso('Token revocado al renovar: artista desconectado y avisado', async () => {
   assert.ok(mails.some(m => /Volvé a conectar/.test(m.subject)));
 });
 
+caso('Envio: solo Andreani, Correo Argentino u OCA, con codigo y link en el mail', async () => {
+  const o = await comprar();
+  pagoMp('111', o, 'approved'); await aviso(o, 111);
+  const artista = { auth: { uid: 'art1' } };
+  await assert.rejects(() => fns.actualizarEnvio({ ...artista, data: { ordenId: o, estado: 'enviado', empresa: 'otra', codigo: 'ABC123' } }), /empresa/);
+  await assert.rejects(() => fns.actualizarEnvio({ ...artista, data: { ordenId: o, estado: 'enviado', empresa: 'mano', codigo: '' } }), /empresa/);
+  await assert.rejects(() => fns.actualizarEnvio({ ...artista, data: { ordenId: o, estado: 'enviado', empresa: 'andreani', codigo: '' } }), /código/);
+  await fns.actualizarEnvio({ ...artista, data: { ordenId: o, estado: 'enviado', empresa: 'andreani', codigo: 'AND12345' } });
+  assert.equal(orden(o).envioEstado, 'enviado');
+  const mail = mails.find(m => /en camino/.test(m.subject));
+  assert.ok(mail && /andreani\.com/.test(mail.html) && /AND12345/.test(mail.html));
+});
+
 (async () => {
   let ok = 0;
   for (const [n, f] of casos) {

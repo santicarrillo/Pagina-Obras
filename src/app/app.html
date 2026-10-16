@@ -50,7 +50,11 @@
         }
         @if (auth.estaLogueado()) {
           <div class="user-menu-wrap">
-            <button class="user-button" type="button" (click)="alternarMenu()" aria-label="Abrir menú de usuario">
+            <button class="user-button" type="button" (click)="alternarMenu()"
+                    [attr.aria-label]="avisos.porDespachar() ? 'Abrir menú de usuario. Tenés ventas por despachar' : 'Abrir menú de usuario'">
+              @if (avisos.porDespachar()) {
+                <span class="punto-aviso" aria-hidden="true"></span>
+              }
               @if (fotoUsuario) {
                 <img class="user-avatar" [src]="fotoUsuario" alt="" referrerpolicy="no-referrer" />
               } @else {
@@ -61,6 +65,14 @@
 
             @if (menuAbierto()) {
               <div class="user-menu">
+                @if (esArtista) {
+                  <button type="button" class="menu-option" (click)="irA('/admin/pagos')">
+                    Mis ventas
+                    @if (avisos.porDespachar(); as n) {
+                      <span class="contador-aviso">{{ n }} por despachar</span>
+                    }
+                  </button>
+                }
                 <button type="button" class="menu-option" (click)="irA('/mis-pedidos')">
                   Mis pedidos
                 </button>

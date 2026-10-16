@@ -227,3 +227,16 @@ app-pasos-envio {
   font-size: 0.8rem;
   color: rgba(245, 238, 232, 0.55);
 }
+
+.nota-mail {
+  margin: 0 0 28px;
+  max-width: 64ch;
+  color: rgba(245, 238, 232, 0.55);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.nota-mail strong {
+  color: rgba(245, 238, 232, 0.8);
+  font-weight: 500;
+}

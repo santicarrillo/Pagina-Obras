@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Auth } from './core/services/auth';
 import { Carrito } from './core/services/carrito';
+import { AvisosVentas } from './core/services/avisos-ventas';
 import { Footer } from './shared/footer/footer';
 import { BuscadorArtistas } from './shared/buscador-artistas/buscador-artistas';
 import { FranjaMp } from './shared/franja-mp/franja-mp';
@@ -16,6 +17,7 @@ export class App {
   protected readonly title = signal('PaginaParaComprasDeObras');
   private router = inject(Router);
   carrito = inject(Carrito);
+  avisos = inject(AvisosVentas);
   menuAbierto = signal(false);
 
   constructor(public auth: Auth) {}

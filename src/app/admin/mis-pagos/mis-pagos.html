@@ -12,6 +12,11 @@
     </p>
   }
 
+  <p class="nota-mail">
+    Cada vez que vendés te avisamos por mail. Si no te llegan, revisá la carpeta de <strong>Spam</strong>
+    y marcá el mail como "No es spam", así los próximos llegan bien.
+  </p>
+
   @if (error()) {
     <p class="aviso-error" role="alert">{{ error() }}</p>
   }
@@ -88,10 +93,8 @@
                     <option [value]="e[0]">{{ e[1].nombre }}</option>
                   }
                 </select>
-                @if (form[v.id].empresa !== 'mano') {
-                  <input [name]="'codigo-' + v.id" [(ngModel)]="form[v.id].codigo" maxlength="60"
-                    placeholder="Código de seguimiento" aria-label="Código de seguimiento" />
-                }
+                <input [name]="'codigo-' + v.id" [(ngModel)]="form[v.id].codigo" maxlength="60"
+                  placeholder="Código de seguimiento" aria-label="Código de seguimiento" />
                 <button type="submit" class="btn-accion" [disabled]="guardandoEnvio() === v.id">
                   {{ guardandoEnvio() === v.id ? 'Guardando...' : 'Marcar como enviada' }}
                 </button>

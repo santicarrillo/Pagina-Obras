@@ -63,7 +63,7 @@ export class MisPagos implements OnInit {
   async marcarEnviado(v: Pedido) {
     const f = this.form[v.id];
     if (!f.empresa) return this.mostrarError(v.id, 'Elegí con qué empresa la mandaste.');
-    if (f.empresa !== 'mano' && f.codigo.trim().length < 4) {
+    if (f.codigo.trim().length < 4) {
       return this.mostrarError(v.id, 'Poné el código de seguimiento que te dio la empresa.');
     }
     await this.actualizar(v, 'enviado', f.empresa, f.codigo.trim());
@@ -83,7 +83,7 @@ export class MisPagos implements OnInit {
       this.ventas.update(lista => lista.map(x => x.id !== v.id ? x : {
         ...x,
         envioEstado: estado,
-        seguimiento: estado === 'enviado' ? { empresa: empresa!, codigo: empresa === 'mano' ? '' : codigo! } : x.seguimiento,
+        seguimiento: estado === 'enviado' ? { empresa: empresa!, codigo: codigo! } : x.seguimiento,
         enviadoEn: estado === 'enviado' ? ahora : x.enviadoEn,
         entregadoEn: estado === 'entregado' ? ahora : x.entregadoEn
       }));

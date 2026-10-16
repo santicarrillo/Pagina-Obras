@@ -41,9 +41,9 @@ export class MisPedidos implements OnInit {
   async ngOnInit() {
     const pago = this.route.snapshot.queryParamMap.get('pago');
     if (pago === 'ok') {
-      this.aviso.set('¡Gracias por tu compra! Mercado Pago aprobó el pago y te mandamos un mail con los detalles. Acá podés seguir cada paso del envío.');
+      this.aviso.set('¡Gracias por tu compra! Mercado Pago aprobó el pago y te mandamos un mail con los detalles. Si no lo ves en unos minutos, revisá la carpeta de Spam o Promociones. Acá podés seguir cada paso del envío.');
     } else if (pago === 'pendiente') {
-      this.aviso.set('Tu pago quedó pendiente. Cuando Mercado Pago lo apruebe, lo vas a ver acá como "Pagado".');
+      this.aviso.set('Tu pago quedó pendiente. Cuando Mercado Pago lo apruebe, lo vas a ver acá como "Pagado" y te va a llegar un mail (si no lo ves, revisá la carpeta de Spam).');
     }
 
     try {
